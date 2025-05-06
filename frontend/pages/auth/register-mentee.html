@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mentrify | Mentee Registration</title>
+  <link rel="stylesheet" href="../../css/global/global.css">
+  <link rel="stylesheet" href="../../css/global/landing-animations.css">
+  <link rel="stylesheet" href="../../css/auth_css/register-mentee.css">
+ 
+</head>
+<body>
+  <div class="mentee-register-container">
+    <div class="mentee-register-title">Sign up as a mentee</div>
+    <form class="mentee-register-form" autocomplete="off">
+      <div>
+        <label class="mentee-register-label" for="first-name">First Name</label>
+        <input class="mentee-register-input" type="text" id="first-name" name="first-name" required>
+      </div>
+      <div>
+        <label class="mentee-register-label" for="last-name">Last Name</label>
+        <input class="mentee-register-input" type="text" id="last-name" name="last-name" required>
+      </div>
+      <div>
+        <label class="mentee-register-label" for="email">Email</label>
+        <input class="mentee-register-input" type="email" id="email" name="email" required>
+      </div>
+      <div>
+        <label class="mentee-register-label" for="password">Password</label>
+        <input class="mentee-register-input" type="password" id="password" name="password" required>
+      </div>
+      <div>
+        <label class="mentee-register-label" for="interests">Interests</label>
+        <input class="mentee-register-input" type="text" id="interests" name="interests" placeholder="e.g. Data Science, Product Management" required>
+      </div>
+      <div>
+        <label class="mentee-register-label" for="goals">Goals</label>
+        <textarea class="mentee-register-textarea" id="goals" name="goals" rows="3" placeholder="What do you hope to achieve?" required></textarea>
+      </div>
+      <button type="submit" class="mentee-register-btn">Register</button>
+    </form>
+    <div class="mentee-login-link">
+      Already have an account? <a href="login.html">Log in</a>
+    </div>
+  </div>
+</body>
+</html>

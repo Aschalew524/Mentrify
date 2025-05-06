@@ -1,0 +1,185 @@
+body {
+    background: var(--background);
+    min-height: 100vh;
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  .register-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 2.5rem 1.2rem 2rem 1.2rem;
+  }
+  .register-title {
+    font-size: 2.4rem;
+    font-weight: bold;
+    color: var(--secondary);
+    margin-bottom: 1.2rem;
+    text-align: center;
+  }
+  .register-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+    margin-bottom: 2.2rem;
+  }
+  .register-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 1.08rem;
+    color: #b0b8c9;
+    font-weight: 500;
+  }
+  .register-step.active {
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .register-step-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e0e7ef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 0.3rem;
+    color: var(--primary);
+    font-weight: bold;
+    border: 2.5px solid transparent;
+    transition: border 0.2s;
+  }
+  .register-step.active .register-step-circle {
+    background: var(--background);
+    border: 2.5px solid var(--primary);
+    color: var(--primary);
+  }
+  .register-step.completed .register-step-circle {
+    background: var(--primary);
+    color: #fff;
+    border: 2.5px solid var(--primary);
+  }
+  .register-step-label {
+    font-size: 1rem;
+    margin-top: 0.1rem;
+  }
+  .register-step-line {
+    width: 60px;
+    height: 3px;
+    background: #e0e7ef;
+    border-radius: 2px;
+    margin: 0 0.2rem;
+  }
+  .register-step.completed ~ .register-step-line {
+    background: var(--primary);
+  }
+  .register-info {
+    background: #eaf4ff;
+    color: #2d4a6a;
+    border-radius: 10px;
+    padding: 1.1rem 1.5rem;
+    margin-bottom: 2rem;
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+  .register-info strong {
+    color: var(--primary);
+  }
+  .register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  .register-row {
+    display: flex;
+    gap: 1.2rem;
+  }
+  .register-row > * {
+    flex: 1;
+  }
+  .register-label {
+    font-size: 1rem;
+    color: var(--secondary);
+    margin-bottom: 0.3rem;
+    font-weight: 500;
+    display: block;
+  }
+  .register-input, .register-select, .register-textarea {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    border: 1.5px solid #d1d5db;
+    font-size: 1rem;
+    outline: none;
+    margin-bottom: 0.2rem;
+    transition: border 0.2s;
+    background: #fff;
+    resize: none;
+  }
+  .register-input:focus, .register-select:focus, .register-textarea:focus {
+    border: 1.5px solid var(--primary);
+  }
+  .register-photo-upload {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+  .register-photo-preview {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #e0e7ef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #b0b8c9;
+    overflow: hidden;
+  }
+  .register-upload-btn {
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    border: 1.5px solid #b0b8c9;
+    background: #fff;
+    color: var(--secondary);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border 0.2s, background 0.2s;
+  }
+  .register-upload-btn:hover {
+    border: 1.5px solid var(--primary);
+    background: #f8f9fa;
+  }
+  .register-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .register-btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.8rem 2.2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .register-btn:hover {
+    background: var(--primary-dark);
+  }
+  @media (max-width: 700px) {
+    .register-container {
+      padding: 1.2rem 0.2rem 1.2rem 0.2rem;
+    }
+    .register-row {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
