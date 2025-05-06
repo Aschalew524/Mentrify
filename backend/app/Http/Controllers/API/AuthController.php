@@ -31,26 +31,37 @@ use App\Models\User;
  */
 
 class AuthController extends Controller
-
-
 {
 
-        /**
+    /**
      * @OA\Post(
      *      path="/register",
      *      operationId="registerUser",
      *      tags={"Authentication"},
-     *      summary="Register a new user",
-     *      description="Registers a new user and returns user data along with an API token.",
+     *      summary="Register a new user as Mentee or Mentor",
+     *      description="Registers a new user (Mentee or Mentor) and returns user data along with an API token.",
      *      @OA\RequestBody(
      *          required=true,
-     *          description="User registration details",
+     *          description="User registration details. Provide 'user_type' as 'mentee' or 'mentor'. Fill fields accordingly.",
      *          @OA\JsonContent(
-     *              required={"name","email","password","password_confirmation"},
-     *              @OA\Property(property="name", type="string", example="John Doe"),
+     *              required={"first_name", "last_name", "email", "password", "password_confirmation", "user_type"},
+     *              @OA\Property(property="first_name", type="string", example="John"),
+     *              @OA\Property(property="last_name", type="string", example="Doe"),
      *              @OA\Property(property="email", type="string", format="email", example="john.doe@example.com"),
      *              @OA\Property(property="password", type="string", format="password", example="password123"),
-     *              @OA\Property(property="password_confirmation", type="string", format="password", example="password123")
+     *              @OA\Property(property="password_confirmation", type="string", format="password", example="password123"),
+     *              @OA\Property(property="user_type", type="string", enum={"mentee", "mentor"}, example="mentee"),
+     *              @OA\Property(property="interests", type="string", example="Data Science, Product Management", description="Required if user_type is 'mentee'"),
+     *              @OA\Property(property="goals", type="string", example="To learn new skills and grow my career.", description="Required if user_type is 'mentee'"),
+     *              @OA\Property(property="photo_url", type="string", format="url", example="http://example.com/photo.jpg", description="Required if user_type is 'mentor'"),
+     *              @OA\Property(property="job_title", type="string", example="Software Engineer", description="Required if user_type is 'mentor'"),
+     *              @OA\Property(property="company", type="string", example="Tech Solutions Inc.", description="Optional, for mentors"),
+     *              @OA\Property(property="location", type="string", example="San Francisco, CA", description="Required if user_type is 'mentor'"),
+     *              @OA\Property(property="category", type="string", enum={"Engineering", "Product", "Design", "Marketing", "Leadership", "Other"}, example="Engineering", description="Required if user_type is 'mentor'"),
+     *              @OA\Property(property="skills", type="string", example="PHP, Laravel, API Design", description="Required if user_type is 'mentor'"),
+     *              @OA\Property(property="bio", type="string", example="Experienced software engineer passionate about mentoring.", description="Required if user_type is 'mentor'"),
+     *              @OA\Property(property="years_of_experience", type="integer", example=5, description="Required if user_type is 'mentor'"),
+     *              @OA\Property(property="availability_hours_week", type="number", format="float", example=10.5, description="Required if user_type is 'mentor'")
      *          )
      *      ),
      *      @OA\Response(
@@ -74,9 +85,26 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users', 
             'password' => 'required|string|min:8|confirmed', 
+            'user_type' => 'required|string|in:mentee,mentor',
+            
+            // Mentee specific fields
+            'interests' => 'required_if:user_type,mentee|string',
+            'goals' => 'required_if:user_type,mentee|string',
+
+            // Mentor specific fields
+            'photo_url' => 'required_if:user_type,mentor|string|max:255', // Consider 'url' rule if it must be a valid URL
+            'job_title' => 'required_if:user_type,mentor|string|max:255',
+            'company' => 'nullable|string|max:255',
+            'location' => 'required_if:user_type,mentor|string|max:255',
+            'category' => 'required_if:user_type,mentor|string|in:Engineering,Product,Design,Marketing,Leadership,Other',
+            'skills' => 'required_if:user_type,mentor|string',
+            'bio' => 'required_if:user_type,mentor|string',
+            'years_of_experience' => 'required_if:user_type,mentor|integer|min:0',
+            'availability_hours_week' => 'required_if:user_type,mentor|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -87,13 +115,32 @@ class AuthController extends Controller
             ], 422); 
         }
 
-        $user = User::create([
-            'name' => $request->name,
+        $userData = [
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
             'email' => $request->email,
-            'password' => Hash::make($request->password), 
-        ]);
+            'password' => Hash::make($request->password),
+            'user_type' => $request->user_type,
+        ];
 
-        $token = $user->createToken('api_token_for_' . $user->name)->plainTextToken;
+        if ($request->user_type === 'mentee') {
+            $userData['interests'] = $request->interests;
+            $userData['goals'] = $request->goals;
+        } elseif ($request->user_type === 'mentor') {
+            $userData['photo_url'] = $request->photo_url;
+            $userData['job_title'] = $request->job_title;
+            $userData['company'] = $request->company;
+            $userData['location'] = $request->location;
+            $userData['category'] = $request->category;
+            $userData['skills'] = $request->skills;
+            $userData['bio'] = $request->bio;
+            $userData['years_of_experience'] = $request->years_of_experience;
+            $userData['availability_hours_week'] = $request->availability_hours_week;
+        }
+
+        $user = User::create($userData);
+
+        $token = $user->createToken('api_token_for_' . $user->first_name)->plainTextToken;
 
         return response()->json([
             'status' => true,
@@ -104,9 +151,7 @@ class AuthController extends Controller
         ], 201); 
     }
 
-
-
-        /**
+    /**
      * @OA\Post(
      *      path="/login",
      *      operationId="loginUser",
@@ -168,7 +213,7 @@ class AuthController extends Controller
         $user = User::where('email', $request['email'])->firstOrFail();
 
         $user->tokens()->delete(); 
-        $token = $user->createToken('api_token_for_' . $user->name)->plainTextToken;
+        $token = $user->createToken('api_token_for_' . $user->first_name)->plainTextToken;
 
         return response()->json([
             'status' => true,
