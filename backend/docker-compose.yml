@@ -1,0 +1,62 @@
+services:
+  # PHP Application Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mentrify_app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini # Optional: for custom php settings
+    networks:
+      - mentrify_network
+
+  # Web Server Service (Nginx)
+  web:
+    image: nginx:alpine
+    container_name: mentrify_web
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8080:80" # Host port 8000 mapped to container port 80
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - mentrify_network
+    depends_on:
+      - app
+
+  # Database Service (MySQL)
+  db:
+    image: mysql:8.0
+    container_name: mentrify_db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "33061:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-mentrify_db}  # e.g., mentrify_db
+      MYSQL_USER: ${DB_USERNAME:-app_user}        # e.g., app_user (NOT root)
+      MYSQL_PASSWORD: ${DB_PASSWORD:-app_password}  # e.g., a_secure_password
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-somesecurerootpassword} # Password for the 'root' MySQL user
+    volumes:
+      - mentrify_db_data:/var/lib/mysql
+    networks:
+      - mentrify_network
+
+# Docker Networks
+networks:
+  mentrify_network:
+    driver: bridge
+
+# Named Volumes
+volumes:
+  mentrify_db_data:
+    driver: local
