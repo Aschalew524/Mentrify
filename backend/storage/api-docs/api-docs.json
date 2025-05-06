@@ -17,25 +17,31 @@
                 "tags": [
                     "Authentication"
                 ],
-                "summary": "Register a new user",
-                "description": "Registers a new user and returns user data along with an API token.",
+                "summary": "Register a new user as Mentee or Mentor",
+                "description": "Registers a new user (Mentee or Mentor) and returns user data along with an API token.",
                 "operationId": "registerUser",
                 "requestBody": {
-                    "description": "User registration details",
+                    "description": "User registration details. Provide 'user_type' as 'mentee' or 'mentor'. Fill fields accordingly.",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "name",
+                                    "first_name",
+                                    "last_name",
                                     "email",
                                     "password",
-                                    "password_confirmation"
+                                    "password_confirmation",
+                                    "user_type"
                                 ],
                                 "properties": {
-                                    "name": {
+                                    "first_name": {
                                         "type": "string",
-                                        "example": "John Doe"
+                                        "example": "John"
+                                    },
+                                    "last_name": {
+                                        "type": "string",
+                                        "example": "Doe"
                                     },
                                     "email": {
                                         "type": "string",
@@ -51,6 +57,79 @@
                                         "type": "string",
                                         "format": "password",
                                         "example": "password123"
+                                    },
+                                    "user_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "mentee",
+                                            "mentor"
+                                        ],
+                                        "example": "mentee"
+                                    },
+                                    "interests": {
+                                        "description": "Required if user_type is 'mentee'",
+                                        "type": "string",
+                                        "example": "Data Science, Product Management"
+                                    },
+                                    "goals": {
+                                        "description": "Required if user_type is 'mentee'",
+                                        "type": "string",
+                                        "example": "To learn new skills and grow my career."
+                                    },
+                                    "photo_url": {
+                                        "description": "Required if user_type is 'mentor'",
+                                        "type": "string",
+                                        "format": "url",
+                                        "example": "http://example.com/photo.jpg"
+                                    },
+                                    "job_title": {
+                                        "description": "Required if user_type is 'mentor'",
+                                        "type": "string",
+                                        "example": "Software Engineer"
+                                    },
+                                    "company": {
+                                        "description": "Optional, for mentors",
+                                        "type": "string",
+                                        "example": "Tech Solutions Inc."
+                                    },
+                                    "location": {
+                                        "description": "Required if user_type is 'mentor'",
+                                        "type": "string",
+                                        "example": "San Francisco, CA"
+                                    },
+                                    "category": {
+                                        "description": "Required if user_type is 'mentor'",
+                                        "type": "string",
+                                        "enum": [
+                                            "Engineering",
+                                            "Product",
+                                            "Design",
+                                            "Marketing",
+                                            "Leadership",
+                                            "Other"
+                                        ],
+                                        "example": "Engineering"
+                                    },
+                                    "skills": {
+                                        "description": "Required if user_type is 'mentor'",
+                                        "type": "string",
+                                        "example": "PHP, Laravel, API Design"
+                                    },
+                                    "bio": {
+                                        "description": "Required if user_type is 'mentor'",
+                                        "type": "string",
+                                        "example": "Experienced software engineer passionate about mentoring."
+                                    },
+                                    "years_of_experience": {
+                                        "description": "Required if user_type is 'mentor'",
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "availability_hours_week": {
+                                        "description": "Required if user_type is 'mentor'",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 10.5
                                     }
                                 },
                                 "type": "object"
@@ -216,30 +295,95 @@
     "components": {
         "schemas": {
             "User": {
-                "title": "User Model",
-                "description": "User model representing an application user",
+                "title": "User",
+                "description": "User model",
                 "properties": {
                     "id": {
                         "description": "User ID",
                         "type": "integer",
-                        "format": "int64",
-                        "example": 1
+                        "format": "int64"
                     },
-                    "name": {
-                        "description": "User's full name",
-                        "type": "string",
-                        "example": "John Doe"
+                    "first_name": {
+                        "description": "User's first name",
+                        "type": "string"
+                    },
+                    "last_name": {
+                        "description": "User's last name",
+                        "type": "string"
                     },
                     "email": {
                         "description": "User's email address",
                         "type": "string",
-                        "format": "email",
-                        "example": "john.doe@example.com"
+                        "format": "email"
                     },
                     "email_verified_at": {
                         "description": "Timestamp of email verification",
                         "type": "string",
                         "format": "date-time",
+                        "nullable": true
+                    },
+                    "user_type": {
+                        "description": "Type of user",
+                        "type": "string",
+                        "enum": [
+                            "mentee",
+                            "mentor"
+                        ]
+                    },
+                    "interests": {
+                        "description": "Mentee's interests (comma-separated or JSON)",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "goals": {
+                        "description": "Mentee's goals",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "photo_url": {
+                        "description": "Mentor's photo URL",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "job_title": {
+                        "description": "Mentor's job title",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "company": {
+                        "description": "Mentor's company (optional)",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "location": {
+                        "description": "Mentor's location",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "category": {
+                        "description": "Mentor's category",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "skills": {
+                        "description": "Mentor's skills (comma-separated or JSON)",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "bio": {
+                        "description": "Mentor's biography",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "years_of_experience": {
+                        "description": "Mentor's years of experience",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "availability_hours_week": {
+                        "description": "Mentor's availability in hours per week",
+                        "type": "number",
+                        "format": "float",
                         "nullable": true
                     },
                     "created_at": {
