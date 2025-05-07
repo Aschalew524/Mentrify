@@ -45,8 +45,7 @@ document.querySelectorAll('.session-actions .btn').forEach(button => {
 
         // Handle Find a Mentor button
         document.querySelector('.quick-actions .btn').addEventListener('click', function() {
-            console.log('Opening mentor search...');
-            // Add your mentor search logic here
+            window.location.href = '../../pages/find_mentor/find_mentor.html';
         });
 
         // Handle navigation

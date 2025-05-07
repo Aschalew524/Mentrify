@@ -569,7 +569,7 @@
                             </div>
                         </div>
                     </div>
-                    <a href="#" class="edit-profile-btn" onclick="openEditModal()">
+                    <a href="#" class="edit-profile-btn" id="editProfileBtn" onclick="openEditModal()">
                         <i class="fas fa-edit"></i>
                         Edit Profile
                     </a>
@@ -693,6 +693,101 @@
     </div>
 
     <script>
+        // Check if user is viewing their own profile
+        function checkProfileViewer() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isOwner = urlParams.get('view') !== 'public';
+            
+            // Hide edit button if not the owner
+            const editBtn = document.getElementById('editProfileBtn');
+            if (editBtn) {
+                editBtn.style.display = isOwner ? 'flex' : 'none';
+            }
+
+            // Update sidebar based on viewer type
+            const sidebar = document.querySelector('.sidebar nav ul');
+            if (sidebar) {
+                if (isOwner) {
+                    // Mentor sidebar
+                    sidebar.innerHTML = `
+                        <li class="nav-item">
+                            <a href="../dashboard/mentor_dashboard.html" class="nav-link">
+                                <i class="fas fa-home"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../my_mentees/my_mentees.html" class="nav-link">
+                                <i class="fas fa-users"></i>
+                                My Mentees
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../tasks/mentor_tasks.html" class="nav-link">
+                                <i class="fas fa-bullseye"></i>
+                                Tasks
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../sessions/mentor_sessions.html" class="nav-link">
+                                <i class="fas fa-calendar-check"></i>
+                                Sessions
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../messages/mentor_messages/mentor_messages.html" class="nav-link">
+                                <i class="fas fa-envelope"></i>
+                                Messages
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../feedback/feedback.html" class="nav-link">
+                                <i class="fas fa-comment-alt"></i>
+                                Feedback
+                            </a>
+                        </li>
+                    `;
+                } else {
+                    // Mentee sidebar
+                    sidebar.innerHTML = `
+                        <li class="nav-item">
+                            <a href="../dashboard/mentee_dashboard.html" class="nav-link">
+                                <i class="fas fa-home"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../my_mentors/my_mentors.html" class="nav-link">
+                                <i class="fas fa-users"></i>
+                                My Mentors
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../tasks/mentee_tasks.html" class="nav-link">
+                                <i class="fas fa-bullseye"></i>
+                                Tasks
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../sessions/mentee_sessions.html" class="nav-link">
+                                <i class="fas fa-calendar-check"></i>
+                                Sessions
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../messages/mentee_messages/mentee_messages.html" class="nav-link">
+                                <i class="fas fa-envelope"></i>
+                                Messages
+                            </a>
+                        </li>
+                    `;
+                }
+            }
+        }
+
+        // Call the function when page loads
+        window.addEventListener('load', checkProfileViewer);
+
         // Show edit modal
         function openEditModal() {
             document.getElementById('editProfileModal').style.display = 'block';
