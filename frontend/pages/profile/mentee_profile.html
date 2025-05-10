@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentee Profile - Mentrify</title>
+    <link rel="stylesheet" href="../../css/global/global.css">
+    <link rel="stylesheet" href="../../css/dashboard/mentee_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .profile-container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 2.5rem;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary);
+        }
+
+        .profile-avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary);
+            box-shadow: 0 8px 24px rgba(26, 188, 156, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 2rem;
+            color: var(--text);
+            margin: 0 0 0.5rem 0;
+            font-weight: 700;
+        }
+
+        .profile-title {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin: 0 0 1.5rem 0;
+            font-weight: 500;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--gray);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--background);
+            border-radius: var(--radius);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .profile-section {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--text);
+            margin: 0 0 2rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+        }
+
+        .section-title i {
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .skill-tag {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 0.75rem 1.25rem;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .skill-tag:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 188, 156, 0.2);
+        }
+
+        .edit-profile-btn {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 0.875rem 1.75rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .edit-profile-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 188, 156, 0.2);
+        }
+
+        @media (max-width: 1024px) {
+            .profile-stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 2rem;
+            }
+
+            .profile-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .profile-section {
+                padding: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-name {
+                font-size: 1.75rem;
+            }
+
+            .profile-title {
+                font-size: 1.1rem;
+            }
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .info-label {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: var(--text);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .info-grid {
+                gap: 1rem;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--radius);
+            max-width: 600px;
+            width: 90%;
+            margin: 2rem auto;
+            padding: 2rem;
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--text);
+            margin: 0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--secondary);
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover {
+            color: var(--primary);
+        }
+
+        .edit-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-input, .form-textarea {
+            padding: 0.75rem 1rem;
+            border: 1.5px solid var(--gray);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .skills-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border: 1.5px solid var(--gray);
+            border-radius: var(--radius);
+            min-height: 50px;
+        }
+
+        .skill-input {
+            border: none;
+            padding: 0.5rem;
+            font-size: 1rem;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .skill-input:focus {
+            outline: none;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background: none;
+            border: 1.5px solid var(--gray);
+            color: var(--secondary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 1rem auto;
+                padding: 1.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">Mentrify</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="../dashboard/mentee_dashboard.html" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../my_mentors/my_mentors.html" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            My Mentors
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../tasks/mentee_tasks.html" class="nav-link">
+                            <i class="fas fa-bullseye"></i>
+                            Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../sessions/mentee_sessions.html" class="nav-link">
+                            <i class="fas fa-calendar-check"></i>
+                            Sessions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../messages/mentee_messages/mentee_messages.html" class="nav-link">
+                            <i class="fas fa-envelope"></i>
+                            Messages
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <div class="profile-container">
+                <div class="profile-header">
+                    <img src="../../assets/images/t1.jpg" alt="Profile" class="profile-avatar">
+                    <div class="profile-info">
+                        <h1 class="profile-name">Sarah Johnson</h1>
+                        <p class="profile-title">Software Developer at InnovateTech</p>
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">15</div>
+                                <div class="stat-label">Tasks Completed</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">4.8</div>
+                                <div class="stat-label">Performance</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">24</div>
+                                <div class="stat-label">Total Sessions</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">3</div>
+                                <div class="stat-label">Active Mentors</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">36</div>
+                                <div class="stat-label">Mentoring Hours</div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="edit_mentee_profile.html" class="edit-profile-btn">
+                        <i class="fas fa-edit"></i>
+                        Edit Profile
+                    </a>
+                </div>
+
+                <div class="profile-grid">
+                    <div class="profile-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-user"></i>
+                            Personal Information
+                        </h2>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Email</span>
+                                <span class="info-value">sarah.johnson@example.com</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Location</span>
+                                <span class="info-value">San Francisco, CA</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Interests</span>
+                                <span class="info-value">Data Science, Product Management, Machine Learning</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Goals</span>
+                                <span class="info-value">To become a senior product manager and lead innovative tech projects</span>
+                            </div>
+                        </div>
+
+                        <h2 class="section-title" style="margin-top: 2rem;">
+                            <i class="fas fa-tools"></i>
+                            Current Skills
+                        </h2>
+                        <div class="skills-container">
+                            <span class="skill-tag">React</span>
+                            <span class="skill-tag">JavaScript</span>
+                            <span class="skill-tag">Node.js</span>
+                            <span class="skill-tag">HTML/CSS</span>
+                            <span class="skill-tag">Git</span>
+                            <span class="skill-tag">AWS</span>
+                            <span class="skill-tag">SQL</span>
+                            <span class="skill-tag">TypeScript</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal" id="editProfileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Profile</h2>
+                <button class="close-modal" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form class="edit-form" id="editProfileForm">
+                <div class="form-group">
+                    <label class="form-label" for="edit-email">Email</label>
+                    <input type="email" id="edit-email" class="form-input" value="sarah.johnson@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-location">Location</label>
+                    <input type="text" id="edit-location" class="form-input" value="San Francisco, CA">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-interests">Interests</label>
+                    <input type="text" id="edit-interests" class="form-input" value="Data Science, Product Management, Machine Learning">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-goals">Goals</label>
+                    <textarea id="edit-goals" class="form-textarea">To become a senior product manager and lead innovative tech projects</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-skills">Skills</label>
+                    <input type="text" id="edit-skills" class="form-input" placeholder="Enter skills separated by commas (e.g., React, JavaScript, Node.js)">
+                    <p class="form-hint">Separate skills with commas</p>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Show edit modal
+        document.querySelector('.edit-profile-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('editProfileModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            // Get current skills from the main profile and join them with commas
+            const currentSkills = Array.from(document.querySelectorAll('.skills-container .skill-tag'))
+                .map(tag => tag.textContent.trim())
+                .join(', ');
+            
+            // Set the skills input value
+            document.getElementById('edit-skills').value = currentSkills;
+        });
+
+        // Handle form submission
+        document.getElementById('editProfileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get all form values
+            const email = document.getElementById('edit-email').value;
+            const location = document.getElementById('edit-location').value;
+            const interests = document.getElementById('edit-interests').value;
+            const goals = document.getElementById('edit-goals').value;
+            const skillsText = document.getElementById('edit-skills').value;
+            
+            // Split skills by comma and trim each skill
+            const skills = skillsText.split(',')
+                .map(skill => skill.trim())
+                .filter(skill => skill !== ''); // Remove empty skills
+
+            // Update profile information
+            const infoValues = document.querySelectorAll('.info-value');
+            infoValues[0].textContent = email;
+            infoValues[1].textContent = location;
+            infoValues[2].textContent = interests;
+            infoValues[3].textContent = goals;
+
+            // Update skills in the main profile view
+            const mainSkillsContainer = document.querySelector('.skills-container');
+            mainSkillsContainer.innerHTML = ''; // Clear existing skills
+            
+            // Add each skill as a new tag
+            skills.forEach(skill => {
+                const tag = document.createElement('span');
+                tag.className = 'skill-tag';
+                tag.textContent = skill;
+                mainSkillsContainer.appendChild(tag);
+            });
+
+            // Show success message
+            const successMessage = document.createElement('div');
+            successMessage.style.position = 'fixed';
+            successMessage.style.top = '20px';
+            successMessage.style.right = '20px';
+            successMessage.style.backgroundColor = 'var(--primary)';
+            successMessage.style.color = 'white';
+            successMessage.style.padding = '1rem 2rem';
+            successMessage.style.borderRadius = 'var(--radius)';
+            successMessage.style.boxShadow = 'var(--shadow)';
+            successMessage.style.zIndex = '1000';
+            successMessage.textContent = 'Profile updated successfully!';
+            document.body.appendChild(successMessage);
+
+            // Remove success message after 3 seconds
+            setTimeout(() => {
+                successMessage.remove();
+            }, 3000);
+
+            // Close modal
+            closeEditModal();
+        });
+
+        // Close edit modal
+        function closeEditModal() {
+            document.getElementById('editProfileModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === document.getElementById('editProfileModal')) {
+                closeEditModal();
+            }
+        });
+    </script>
+</body>
+</html> 

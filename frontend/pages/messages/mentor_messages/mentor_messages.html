@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Mentrify</title>
+    <link rel="stylesheet" href="../../../css/global/global.css">
+    <link rel="stylesheet" href="../../../css/dashboard/mentor_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .messages-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: calc(100vh - 4rem);
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .messages-list {
+            border-right: 1px solid var(--gray);
+            overflow-y: auto;
+        }
+
+        .message-preview {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .message-preview:hover {
+            background-color: var(--background);
+        }
+
+        .message-preview.active {
+            background-color: var(--primary-light);
+        }
+
+        .message-preview-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .message-info {
+            flex: 1;
+        }
+
+        .message-name {
+            font-weight: 600;
+            color: var(--text);
+            margin: 0;
+        }
+
+        .message-time {
+            font-size: 0.8rem;
+            color: var(--secondary);
+        }
+
+        .message-content {
+            color: var(--text);
+            font-size: 0.9rem;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .unread-badge {
+            background: var(--primary);
+            color: var(--white);
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: auto;
+        }
+
+        .chat-window {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .message-bubble.sent {
+            background: var(--primary);
+            color: var(--white);
+            align-self: flex-end;
+        }
+
+        .message-bubble.received {
+            background: var(--background);
+            color: var(--text);
+            align-self: flex-start;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            opacity: 0.8;
+        }
+
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid var(--gray);
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+        }
+
+        .chat-input button {
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .chat-input button:hover {
+            background: var(--primary-dark);
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--secondary);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.5rem;
+        }
+
+        .empty-state p {
+            margin: 0;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">Mentrify</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="../../../pages/dashboard/mentor_dashboard.html" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../../pages/my_mentees/my_mentees.html" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            My Mentees
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../../pages/tasks/mentor_tasks.html" class="nav-link">
+                            <i class="fas fa-bullseye"></i>
+                            Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../../pages/sessions/mentor_sessions.html" class="nav-link">
+                            <i class="fas fa-calendar-check"></i>
+                            Sessions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../../pages/messages/mentor_messages/mentor_messages.html" class="nav-link active" style="background: var(--primary); color: var(--white);">
+                            <i class="fas fa-envelope"></i>
+                            Messages
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../../pages/feedback/feedback.html" class="nav-link">
+                            <i class="fas fa-comment-alt"></i>
+                            Feedback
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <div class="messages-container">
+                <!-- Messages List -->
+                <div class="messages-list">
+                    <div class="message-preview active" data-user-id="sarah-johnson">
+                        <div class="message-preview-header">
+                            <img src="../../../assets/images/t1.jpg" alt="Mentee" class="message-avatar">
+                            <div class="message-info">
+                                <h3 class="message-name">Sarah Johnson</h3>
+                                <span class="message-time">11:45 AM</span>
+                            </div>
+                            <span class="unread-badge">1</span>
+                        </div>
+                        <p class="message-content">I have a question about the project deadline. Can we discuss it?</p>
+                    </div>
+                    <div class="message-preview" data-user-id="michael-brown">
+                        <div class="message-preview-header">
+                            <img src="../../../assets/images/t1.jpg" alt="Mentee" class="message-avatar">
+                            <div class="message-info">
+                                <h3 class="message-name">Michael Brown</h3>
+                                <span class="message-time">Yesterday</span>
+                            </div>
+                        </div>
+                        <p class="message-content">Thank you for the feedback on my last assignment!</p>
+                    </div>
+                </div>
+
+                <!-- Chat Window -->
+                <div class="chat-window">
+                    <div class="chat-header">
+                        <img src="../../../assets/images/t1.jpg" alt="Mentee" class="message-avatar">
+                        <div class="message-info">
+                            <h3 class="message-name">Sarah Johnson</h3>
+                            <span class="message-time">Online</span>
+                        </div>
+                    </div>
+                    <div class="chat-messages">
+                        <div class="message-bubble received">
+                            <p>I have a question about the project deadline. Can we discuss it?</p>
+                            <span class="message-time">11:45 AM</span>
+                        </div>
+                        <div class="message-bubble sent">
+                            <p>Of course! What would you like to know?</p>
+                            <span class="message-time">11:46 AM</span>
+                        </div>
+                        <div class="message-bubble received">
+                            <p>Is it possible to extend it by a few days? I'm working on some improvements.</p>
+                            <span class="message-time">11:47 AM</span>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" placeholder="Type your message...">
+                        <button><i class="fas fa-paper-plane"></i> Send</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        // Sample conversation data
+        const conversations = {
+            'sarah-johnson': {
+                name: 'Sarah Johnson',
+                avatar: '../../../assets/images/t1.jpg',
+                status: 'Online',
+                messages: [
+                    { type: 'received', content: 'I have a question about the project deadline. Can we discuss it?', time: '11:45 AM' },
+                    { type: 'sent', content: 'Of course! What would you like to know?', time: '11:46 AM' },
+                    { type: 'received', content: 'Is it possible to extend it by a few days? I\'m working on some improvements.', time: '11:47 AM' }
+                ]
+            },
+            'michael-brown': {
+                name: 'Michael Brown',
+                avatar: '../../../assets/images/t1.jpg',
+                status: 'Last seen 1h ago',
+                messages: [
+                    { type: 'received', content: 'Thank you for the feedback on my last assignment!', time: 'Yesterday' },
+                    { type: 'sent', content: 'You\'re welcome! Your progress has been excellent.', time: 'Yesterday' }
+                ]
+            }
+        };
+
+        // Function to switch conversation
+        function switchConversation(userId) {
+            const conversation = conversations[userId];
+            if (!conversation) return;
+
+            // Update chat header
+            const chatHeader = document.querySelector('.chat-header');
+            chatHeader.innerHTML = `
+                <img src="${conversation.avatar}" alt="${conversation.name}" class="message-avatar">
+                <div class="message-info">
+                    <h3 class="message-name">${conversation.name}</h3>
+                    <span class="message-time">${conversation.status}</span>
+                </div>
+            `;
+
+            // Update chat messages
+            const chatMessages = document.querySelector('.chat-messages');
+            chatMessages.innerHTML = conversation.messages.map(msg => `
+                <div class="message-bubble ${msg.type}">
+                    <p>${msg.content}</p>
+                    <span class="message-time">${msg.time}</span>
+                </div>
+            `).join('');
+
+            // Scroll to bottom of chat
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Update active state in message list
+            document.querySelectorAll('.message-preview').forEach(preview => {
+                preview.classList.remove('active');
+                if (preview.getAttribute('data-user-id') === userId) {
+                    preview.classList.add('active');
+                }
+            });
+        }
+
+        // Add click handlers for message previews
+        document.querySelectorAll('.message-preview').forEach(preview => {
+            preview.addEventListener('click', () => {
+                const userId = preview.getAttribute('data-user-id');
+                switchConversation(userId);
+            });
+        });
+
+        // Initialize with first conversation
+        document.addEventListener('DOMContentLoaded', () => {
+            switchConversation('sarah-johnson');
+        });
+    </script>
+</body>
+</html> 

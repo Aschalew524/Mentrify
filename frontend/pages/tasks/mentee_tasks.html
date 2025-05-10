@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tasks - Mentrify</title>
+    <link rel="stylesheet" href="../../css/global/global.css">
+    <link rel="stylesheet" href="../../css/dashboard/mentee_dashboard.css">
+    <link rel="stylesheet" href="../../css/tasks/mentee_tasks.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Basic styling to make active filter visible if CSS files are missing */
+        /* Assuming CSS vars like --primary, --white etc. are defined in your global.css */
+        
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: var(--white);
+            font-weight: bold;
+        }
+        .tasks-list {
+            margin-top: 2rem;
+        }
+        .search-bar {
+            margin: 1rem 0;
+            position: relative;
+        }
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1.25rem;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius);
+            background: var(--white);
+            color: var(--text);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        .search-input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        .search-bar::after {
+            content: '\f002';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            pointer-events: none;
+        }
+        .task-item {
+            background-color: var(--white);
+            border: 1px solid var(--gray);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            cursor: pointer; /* Add cursor pointer to indicate it's clickable */
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .task-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .task-title {
+            font-size: 1.4rem;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+        .task-description {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            border-top: 1px solid var(--gray);
+            padding-top: 1rem;
+        }
+        .task-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .status-not-started { color: var(--accent); border: 1px solid var(--accent); background-color: #fff8e1; }
+        .status-in-progress { color: var(--primary); border: 1px solid var(--primary); background-color: #e7f3ff; }
+        .status-completed { color: var(--primary-dark); border: 1px solid var(--primary-dark); background-color: #e0f7ef;}
+
+        .task-mentor {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray);
+        }
+        .mentor-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .mentor-info h4 {
+            margin: 0;
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+        .mentor-info p { /* Added back mentor title style in case you want it */
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--secondary);
+        }
+        .task-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray);
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid transparent;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        .btn-outline {
+            background-color: transparent;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .all-status-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 2rem 0 1rem 0;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--secondary);
+        }
+
+        /* Styles for the Task Detail View */
+        .task-detail-container {
+            background: var(--white);
+            border: 1px solid var(--gray);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: var(--shadow);
+        }
+        .task-detail-container h2 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+        .task-detail-container .detail-label {
+            font-weight: 600;
+            color: var(--secondary);
+            margin-top: 1rem;
+            display: block;
+        }
+        .task-detail-container p, .task-detail-container div {
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+        .task-detail-mentor-info {
+             display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        #back-to-tasks {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">Mentrify</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="../../pages/dashboard/mentee_dashboard.html" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../pages/my_mentors/my_mentors.html" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            My Mentors
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../pages/tasks/mentee_tasks.html" class="nav-link active" style="background: var(--primary); color: var(--white);">
+                            <i class="fas fa-bullseye"></i>
+                            Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../pages/sessions/mentee_sessions.html" class="nav-link">
+                            <i class="fas fa-calendar-check"></i>
+                            Sessions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../pages/messages/mentee_messages/mentee_messages.html" class="nav-link">
+                            <i class="fas fa-envelope"></i>
+                            Messages
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="tasks-container">
+                <div class="tasks-header-wrapper"> <!-- Added a wrapper for list view content -->
+                    <div class="tasks-header">
+                        <div class="tasks-header-content">
+                            <div class="tasks-header-top"><h1 class="tasks-title">My Tasks</h1></div>
+                            <div class="filter-buttons">
+                                <button class="filter-btn" data-status="all"><i class="fas fa-list"></i> All Tasks <span class="count">0</span></button>
+                                <button class="filter-btn" data-status="not-started"><i class="fas fa-clock"></i> Not Started <span class="count">0</span></button>
+                                <button class="filter-btn" data-status="in-progress"><i class="fas fa-spinner"></i> In Progress <span class="count">0</span></button>
+                                <button class="filter-btn" data-status="completed"><i class="fas fa-check-circle"></i> Completed <span class="count">0</span></button>
+                            </div>
+                            <div class="search-bar"><input type="text" class="search-input" placeholder="Search tasks..."></div>
+                        </div>
+                    </div>
+                    <div class="tasks-list"></div>
+                </div> <!-- END tasks-header-wrapper -->
+
+                <div class="task-detail-container" style="display: none;">
+                    <!-- Task details will be injected here -->
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script src="../../js/tasks/mentee_task/mentee_task.js"></script>
+</body>
+</html>

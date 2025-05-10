@@ -47,6 +47,11 @@
             <label class="register-label" for="password">Choose a Password</label>
             <input class="register-input" type="password" id="password" name="password" required>
           </div>
+        
+        </div>
+        <div>
+          <label class="register-label" for="confirm-password">Confirm Password</label>
+          <input class="register-input" type="password" id="confirm-password" name="confirm-password" required>
         </div>
         <div class="register-row">
           <div>
@@ -117,54 +122,14 @@
         </div>
         <div class="register-actions">
           <button type="button" class="register-btn" onclick="showStep(2)">Back</button>
+          <input type="hidden" id="user-type" name="user_type" value="mentor" />
           <button type="submit" class="register-btn">Submit</button>
         </div>
       </div>
     </form>
   </div>
-  <script>
-    function showStep(step) {
-      // Validate required fields before moving to next step
-      if (step > 1) {
-        const step1 = document.getElementById('step-1');
-        if (step === 2 && !step1.querySelectorAll('input:invalid, select:invalid').length === 0) {
-          step1.querySelector('input:invalid, select:invalid')?.focus();
-          return;
-        }
-        if (step === 3) {
-          const step2 = document.getElementById('step-2');
-          if (!step2.querySelectorAll('input:invalid, select:invalid, textarea:invalid').length === 0) {
-            step2.querySelector('input:invalid, select:invalid, textarea:invalid')?.focus();
-            return;
-          }
-        }
-      }
-      for (let i = 1; i <= 3; i++) {
-        document.getElementById('step-' + i).style.display = (i === step) ? '' : 'none';
-        document.getElementsByClassName('register-step')[i - 1].classList.toggle('active', i === step);
-        document.getElementsByClassName('register-step')[i - 1].classList.toggle('completed', i < step);
-      }
-    }
-    // Photo preview
-    document.getElementById('photo-input').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          document.getElementById('photo-preview').innerHTML = `<img src="${evt.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-    
-    // Prevent submit if any required field is missing
-    document.getElementById('mentor-register-form').addEventListener('submit', function(e) {
-      const step3 = document.getElementById('step-3');
-      if (step3.querySelectorAll('input:invalid').length > 0) {
-        step3.querySelector('input:invalid')?.focus();
-        e.preventDefault();
-      }
-    });
-  </script>
+  
+      <script src="../../js/auth/mentor_register.js"></script>
+
 </body>
 </html>

@@ -67,11 +67,23 @@ body {
     border-radius: var(--radius);
     transition: var(--transition);
     font-weight: 500;
+    cursor: pointer;
 }
 
 .nav-link:hover, .nav-link.active {
     background: var(--primary);
     color: var(--white);
+    transform: translateX(5px);
+}
+
+.nav-link i {
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.nav-link:hover i, .nav-link.active i {
+    transform: scale(1.1);
 }
 
 /* Main Content Styles */

@@ -1,4 +1,3 @@
-
 // Handle session actions
 document.querySelectorAll('.session-actions .btn').forEach(button => {
     button.addEventListener('click', function() {
@@ -47,19 +46,13 @@ document.querySelector('.quick-actions .btn').addEventListener('click', function
     // Add your session scheduling logic here
 });
 
-// Handle navigation menu
+// Handle navigation
 document.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', function(e) {
-        e.preventDefault();
         // Remove active class from all links
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
         // Add active class to clicked link
         this.classList.add('active');
-        
-        // Handle navigation
-        const page = this.textContent.trim().toLowerCase();
-        console.log(`Navigating to ${page}...`);
-        // Add your navigation logic here
     });
 });
 

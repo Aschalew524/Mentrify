@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Mentees - Mentrify</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/dashboard/mentor_dashboard.css">
+    <link rel="stylesheet" href="../../css/my_mentees/my_mentees.css">
+    <style>
+        /* Copy the exact same sidebar styles from mentor_dashboard.css */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--white);
+            padding: 2rem;
+            border-right: 1px solid var(--gray);
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            letter-spacing: 2px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: var(--radius);
+            transition: var(--transition);
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateX(5px);
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .nav-link:hover i, .nav-link.active i {
+            transform: scale(1.1);
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                top: 0;
+                height: 100vh;
+                z-index: 1000;
+                transition: var(--transition);
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+        }
+
+        /* Keep your existing styles for the main content */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        .mentees-title {
+            color: var(--primary);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-bar {
+            width: 100%;
+            background: var(--background);
+            padding-bottom: 1.5rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            border-bottom: 1px solid var(--gray);
+            margin-bottom: 2rem;
+        }
+        .filter-bar input[type="text"] {
+            padding: 0.7rem 1.2rem;
+            border-radius: 8px;
+            border: 1px solid var(--gray);
+            font-size: 1rem;
+            width: 250px;
+        }
+        .filter-bar select {
+            padding: 0.7rem 1.2rem;
+            border-radius: 8px;
+            border: 1px solid var(--gray);
+            font-size: 1rem;
+        }
+        .mentees-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            width: 100%;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .mentee-card {
+            width: 100%;
+            background: var(--white);
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 2rem;
+        }
+        .mentee-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+        }
+        .mentee-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        .mentee-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin: 0;
+        }
+        .mentee-title {
+            font-size: 1rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+        .mentee-email {
+            color: var(--text);
+            font-size: 0.97rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .progress-bar-bg {
+            width: 200px;
+            height: 10px;
+            background: var(--gray);
+            border-radius: 5px;
+            margin: 0.5rem 0 1rem 0;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 5px;
+        }
+        .progress-label {
+            font-size: 0.95rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+        .mentee-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-left: 2rem;
+        }
+        .btn {
+            background: var(--gradient-primary);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--primary);
+            color: var(--primary);
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                margin-left: 0;
+            }
+            .sidebar {
+                width: 100%;
+                position: static;
+                height: auto;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            }
+            .sidebar nav {
+                padding: 1rem;
+            }
+            .nav-link {
+                border-radius: 8px;
+                margin-left: 0;
+                margin-right: 0;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .mentee-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .progress-bar-bg {
+                width: 100%;
+            }
+            .mentee-actions {
+                margin-left: 0;
+                flex-direction: row;
+                width: 100%;
+            }
+             .mentee-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-bar input[type="text"], .filter-bar select {
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">Mentrify</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="../dashboard/mentor_dashboard.html" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../my_mentees/my_mentees.html" class="nav-link active">
+                            <i class="fas fa-users"></i>
+                            My Mentees
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../tasks/mentor_tasks.html" class="nav-link">
+                            <i class="fas fa-tasks"></i>
+                            Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../sessions/mentor_sessions.html" class="nav-link">
+                            <i class="fas fa-calendar-check"></i>
+                            Sessions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../pages/messages/mentor_messages/mentor_messages.html" class="nav-link">
+                            <i class="fas fa-envelope"></i>
+                            Messages
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../feedback/feedback.html" class="nav-link">
+                            <i class="fas fa-star"></i>
+                            Feedback
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <div class="main-content">
+            <div class="container">
+                <h1 class="mentees-title">My Mentees</h1>
+                <div class="filter-bar">
+                    <input type="text" id="menteeSearch" placeholder="Search by name...">
+                    <select id="progressFilter">
+                        <option value="all">All Progress</option>
+                        <option value="0-49">0-49%</option>
+                        <option value="50-74">50-74%</option>
+                        <option value="75-100">75-100%</option>
+                    </select>
+                </div>
+                <div class="mentees-grid" id="menteesGrid">
+                    <!-- Mentee cards remain the same -->
+                    <div class="mentee-card">
+                        <img src="../../assets/images/mentee-avatar.jpg" alt="Mentee" class="mentee-avatar">
+                        <div class="mentee-info">
+                            <div class="mentee-name">Sarah Johnson</div>
+                            <div class="mentee-title">Web Development</div>
+                            <div class="mentee-email"><i class="fas fa-envelope"></i> sarah.j@email.com</div>
+                            <div class="progress-label">Progress: 70%</div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width:70%"></div>
+                            </div>
+                        </div>
+                        <div class="mentee-actions">
+                            <button class="btn"><i class="fas fa-user"></i>View Profile</button>
+                            <button class="btn btn-outline"><i class="fas fa-paper-plane"></i>Contact</button>
+                        </div>
+                    </div>
+                    <div class="mentee-card">
+                        <img src="../../assets/images/mentee-avatar.jpg" alt="Mentee" class="mentee-avatar">
+                        <div class="mentee-info">
+                            <div class="mentee-name">Michael Brown</div>
+                            <div class="mentee-title">Frontend Development</div>
+                            <div class="mentee-email"><i class="fas fa-envelope"></i> michael.b@email.com</div>
+                            <div class="progress-label">Progress: 45%</div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width:45%"></div>
+                            </div>
+                        </div>
+                        <div class="mentee-actions">
+                            <button class="btn"><i class="fas fa-user"></i>View Profile</button>
+                            <button class="btn btn-outline"><i class="fas fa-paper-plane"></i>Contact</button>
+                        </div>
+                    </div>
+                    <div class="mentee-card">
+                        <img src="../../assets/images/mentee-avatar.jpg" alt="Mentee" class="mentee-avatar">
+                        <div class="mentee-info">
+                            <div class="mentee-name">Emily Davis</div>
+                            <div class="mentee-title">Database Design</div>
+                            <div class="mentee-email"><i class="fas fa-envelope"></i> emily.d@email.com</div>
+                            <div class="progress-label">Progress: 90%</div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width:90%"></div>
+                            </div>
+                        </div>
+                        <div class="mentee-actions">
+                            <button class="btn"><i class="fas fa-user"></i>View Profile</button>
+                            <button class="btn btn-outline"><i class="fas fa-paper-plane"></i>Contact</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

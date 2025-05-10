@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sessions - Mentrify</title>
+    <link rel="stylesheet" href="../../css/global/global.css">
+    <link rel="stylesheet" href="../../css/dashboard/mentee_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --card-hover-transform: translateY(-5px);
+            --card-hover-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background: var(--background);
+            margin: 0;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            color: var(--text);
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            background: var(--white);
+            padding: 2rem;
+            border-right: 1px solid var(--gray);
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            letter-spacing: 2px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: var(--radius);
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            padding: 2rem;
+        }
+
+        .sessions-container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0 2rem;
+        }
+
+        .sessions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 0 1rem;
+        }
+
+        .sessions-title {
+            font-size: 2rem;
+            color: var(--secondary);
+            font-weight: 700;
+        }
+
+        .sessions-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 0 1rem;
+        }
+
+        .filter-group {
+            position: relative;
+        }
+
+        .filter-select {
+            padding: 0.75rem 1.25rem;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius);
+            background: var(--white);
+            color: var(--text);
+            font-size: 0.95rem;
+            cursor: pointer;
+            min-width: 150px;
+            appearance: none;
+            padding-right: 2.5rem;
+        }
+
+        .filter-group::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            pointer-events: none;
+        }
+
+        .search-bar {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1.25rem;
+            padding-left: 3rem;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius);
+            background: var(--white);
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+        }
+
+        .sessions-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .session-card {
+            background: var(--white);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--gray);
+            display: grid;
+            grid-template-columns: 300px 1fr auto;
+            align-items: center;
+            gap: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .session-card:last-child {
+            border-bottom: none;
+        }
+
+        .session-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 300px;
+            min-width: 0;
+        }
+
+        .session-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .session-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .session-info h3 {
+            margin: 0;
+            color: var(--secondary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .session-info p {
+            margin: 0.25rem 0 0;
+            color: var(--text);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .session-details {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            min-width: 0;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text);
+            font-size: 0.95rem;
+            min-width: 0;
+        }
+
+        .detail-item span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .detail-item i {
+            color: var(--primary);
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .session-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            min-width: 0;
+        }
+
+        .session-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
+            text-transform: capitalize;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .status-upcoming {
+            background: rgba(26, 188, 156, 0.1);
+            color: var(--primary);
+        }
+
+        .status-completed {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+
+        .status-cancelled {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+
+        .session-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            white-space: nowrap;
+            min-width: auto;
+            justify-content: center;
+            font-size: 0.9rem;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn i {
+            font-size: 0.85rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 188, 156, 0.2);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: var(--text);
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 1200px) {
+            .sessions-container {
+                padding: 0 1.5rem;
+            }
+
+            .session-card {
+                grid-template-columns: 250px 1fr auto;
+                gap: 1.5rem;
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sessions-container {
+                padding: 0 1rem;
+            }
+
+            .sessions-header {
+                padding: 0;
+            }
+
+            .sessions-filters {
+                padding: 0;
+            }
+
+            .session-card {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">Mentrify</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="../dashboard/mentee_dashboard.html" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../my_mentors/my_mentors.html" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            My Mentors
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../tasks/mentee_tasks.html" class="nav-link">
+                            <i class="fas fa-bullseye"></i>
+                            Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../sessions/sessions.html" class="nav-link active">
+                            <i class="fas fa-calendar-check"></i>
+                            Sessions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../messages/messages.html" class="nav-link">
+                            <i class="fas fa-envelope"></i>
+                            Messages
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="sessions-container">
+                <div class="sessions-header">
+                    <h1 class="sessions-title">My Sessions</h1>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Schedule New Session
+                    </button>
+                </div>
+
+                <div class="sessions-filters">
+                    <div class="filter-group">
+                        <select class="filter-select" id="status-filter">
+                            <option value="all">All Sessions</option>
+                            <option value="upcoming">Upcoming</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="search-input" placeholder="Search sessions...">
+                    </div>
+                </div>
+
+                <div class="sessions-grid">
+                    <div class="session-card">
+                        <div class="session-header">
+                            <img src="../../assets/images/mentor-avatar.jpg" alt="Mentor" class="session-avatar">
+                            <div class="session-info">
+                                <h3>John Smith</h3>
+                                <p>Career Development</p>
+                            </div>
+                        </div>
+                        <div class="session-details">
+                            <div class="detail-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Mar 15, 2024</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>10:00 AM - 11:00 AM</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-video"></i>
+                                <span>Video Call</span>
+                            </div>
+                        </div>
+                        <div class="session-right">
+                            <div class="session-status status-upcoming">Upcoming</div>
+                            <div class="session-actions">
+                                <button class="btn btn-primary">Join Session</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="session-card">
+                        <div class="session-header">
+                            <img src="../../assets/images/mentor-avatar.jpg" alt="Mentor" class="session-avatar">
+                            <div class="session-info">
+                                <h3>Sarah Johnson</h3>
+                                <p>Leadership Skills</p>
+                            </div>
+                        </div>
+                        <div class="session-details">
+                            <div class="detail-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Mar 14, 2024</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>2:00 PM - 3:00 PM</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-video"></i>
+                                <span>Video Call</span>
+                            </div>
+                        </div>
+                        <div class="session-right">
+                            <div class="session-status status-completed">Completed</div>
+                            <div class="session-actions">
+                                <button class="btn btn-outline">Give Feedback</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="session-card">
+                        <div class="session-header">
+                            <img src="../../assets/images/mentor-avatar.jpg" alt="Mentor" class="session-avatar">
+                            <div class="session-info">
+                                <h3>Michael Brown</h3>
+                                <p>Technical Skills</p>
+                            </div>
+                        </div>
+                        <div class="session-details">
+                            <div class="detail-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Mar 13, 2024</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>11:00 AM - 12:00 PM</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-video"></i>
+                                <span>Video Call</span>
+                            </div>
+                        </div>
+                        <div class="session-right">
+                            <div class="session-status status-cancelled">Cancelled</div>
+                            <div class="session-actions">
+                                <button class="btn btn-outline">Reschedule</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="session-card">
+                        <div class="session-header">
+                            <img src="../../assets/images/mentor-avatar.jpg" alt="Mentor" class="session-avatar">
+                            <div class="session-info">
+                                <h3>Emily Davis</h3>
+                                <p>Communication Skills</p>
+                            </div>
+                        </div>
+                        <div class="session-details">
+                            <div class="detail-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Mar 16, 2024</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>3:00 PM - 4:00 PM</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-video"></i>
+                                <span>Video Call</span>
+                            </div>
+                        </div>
+                        <div class="session-right">
+                            <div class="session-status status-upcoming">Upcoming</div>
+                            <div class="session-actions">
+                                <button class="btn btn-primary">Join Session</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../js/sessions/sessions.js"></script>
+</body>
+</html> 

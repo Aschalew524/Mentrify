@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Mentors - Mentrify</title>
+    <link rel="stylesheet" href="../../css/global/global.css"> <!-- Assuming your CSS vars are here -->
+    <link rel="stylesheet" href="../../css/dashboard/mentee_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+     
+        /* Styles from your provided code for my_mentors.html */
+        .mentors-title {
+            color: var(--primary);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding-left: 0;
+        }
+        .mentors-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        .mentor-card {
+            width: 100%;
+            background: var(--white); /* Changed to white for better contrast with details */
+            border-radius: var(--radius); /* Added radius for consistency */
+            box-shadow: var(--shadow-sm);
+            padding: 0;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+            box-sizing: border-box;
+            border: 1px solid var(--gray);
+        }
+        .mentor-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            cursor: pointer;
+            padding: 1.5rem; /* Adjusted padding */
+        }
+        .mentor-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary); /* Slightly thicker border */
+        }
+        .mentor-header-info {
+            flex: 1;
+        }
+        .mentor-name {
+            font-size: 1.3rem; /* Slightly larger */
+            font-weight: 600;
+            color: var(--primary);
+            margin: 0 0 0.25rem 0;
+        }
+        .mentor-title { /* This is the "Expertise" */
+            font-size: 1rem;
+            color: var(--secondary);
+        }
+        .expand-icon {
+            font-size: 1.2rem;
+            color: var(--secondary);
+            margin-left: auto;
+            transition: transform 0.3s ease; /* Smoother transition */
+        }
+        .mentor-card.expanded .expand-icon {
+            transform: rotate(90deg);
+        }
+        .mentor-details {
+            display: none;
+            padding: 0 1.5rem 1.5rem 1.5rem; /* Adjusted padding */
+            border-top: 1px solid var(--gray);
+            /* background: var(--background); Removed background, details inherit card background */
+        }
+        .mentor-card.expanded .mentor-details {
+            display: block;
+        }
+
+        /* New styles for structured details */
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+        .detail-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-dark); /* Darker primary for section titles */
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+        .detail-item i {
+            color: var(--secondary);
+            width: 16px; /* For icon alignment */
+            text-align: center;
+        }
+        .detail-item strong { /* For labels like "Email:" */
+            color: var(--secondary);
+            font-weight: 500;
+        }
+        .mentor-bio-text {
+            color: var(--text);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        .actions-group {
+            display: flex;
+            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .action-btn {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius);
+            padding: 0.7rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .action-btn:hover {
+            background: var(--primary-dark);
+        }
+        .action-btn.secondary { /* For less prominent actions */
+            background-color: var(--secondary);
+        }
+         .action-btn.secondary:hover {
+            background-color: #5a6268; /* Darken secondary */
+        }
+
+
+        /* Styles for lists (like recent sessions, tasks - reusing your old .list style) */
+        .list {
+            background: var(--background); /* Light background for lists within details */
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--gray);
+        }
+        .list-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Pushes date to the right */
+            gap: 1rem;
+        }
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        .list-item-title {
+            font-weight: 500;
+            color: var(--text); /* Changed from secondary for better readability */
+        }
+        .list-item-date {
+            color: var(--primary);
+            font-size: 0.9rem;
+            /* margin-left: auto; Removed, using justify-content on parent */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            /* Sidebar and main content layout adjustments (from original) */
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                width: 100%;
+                position: static;
+                height: auto;
+                box-shadow: none;
+            }
+            .main-content {
+                padding: 1rem; /* Add some padding on mobile for main content */
+            }
+            .mentor-header, .mentor-details {
+                padding-left: 1rem;
+                padding-right: 1rem; /* Ensure consistent padding */
+            }
+            .mentors-title {
+                font-size: 1.8rem; /* Slightly smaller title on mobile */
+            }
+        }
+
+        .mentor-stats-section {
+            margin-bottom: 1.5rem;
+        }
+        .mentor-stats-cards {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .mentor-stat-card {
+            background: linear-gradient(135deg, #eef2ff 60%, #c7d2fe 100%);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.07);
+            padding: 1.1rem 1.5rem;
+            min-width: 110px;
+            text-align: center;
+            flex: 1 1 110px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .mentor-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3730a3;
+            margin-bottom: 0.2rem;
+        }
+        .mentor-stat-label {
+            font-size: 0.98rem;
+            color: #6366f1;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">Mentrify</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="../../pages/dashboard/mentee_dashboard.html" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../pages/my_mentors/my_mentors.html" class="nav-link active" style="background: var(--primary); color: var(--white);">
+                            <i class="fas fa-users"></i>
+                            My Mentors
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../pages/tasks/mentee_tasks.html" class="nav-link">
+                            <i class="fas fa-bullseye"></i>
+                            Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../pages/sessions/mentee_sessions.html" class="nav-link">
+                            <i class="fas fa-calendar-check"></i>
+                            Sessions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../pages/messages/mentee_messages/mentee_messages.html" class="nav-link">
+                            <i class="fas fa-envelope"></i>
+                            Messages
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <h1 class="mentors-title">My Mentors</h1>
+            <div class="mentors-list">
+                <!-- Mentor Card 1: John Smith -->
+                <div class="mentor-card">
+                    <div class="mentor-header" onclick="toggleMentorCard(this)">
+                        <img src="../../assets/images/mentor-avatar.jpg" alt="Mentor John Smith" class="mentor-avatar">
+                        <div class="mentor-header-info">
+                            <div class="mentor-name">John Smith</div>
+                            <div class="mentor-title">Senior Backend Developer</div> <!-- This is Expertise -->
+                        </div>
+                        <i class="fas fa-chevron-right expand-icon"></i>
+                    </div>
+                    <div class="mentor-details">
+                        <!-- ✅ Basic Info -->
+                        <div class="detail-section">
+                            <div class="detail-item">
+                                <i class="fas fa-envelope"></i>
+                                <div><strong>Email:</strong> <a href="mailto:john.smith@email.com">john.smith@email.com</a></div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-briefcase"></i>
+                                <div><strong>Expertise:</strong> Senior Backend Developer (Node.js, Express, Cloud)</div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-info-circle"></i>
+                                <div><strong>About Me:</strong></div>
+                            </div>
+                            <p class="mentor-bio-text">
+                                Passionate about teaching and backend systems. With over 10 years of experience in Node.js, Express, and cloud infrastructure, I'm here to help you grow your skills and navigate the complexities of modern software development.
+                            </p>
+                        </div>
+
+                        <!-- Stats Section (add this above Leave Feedback) -->
+                        <div class="detail-section mentor-stats-section">
+                            <div class="detail-section-title"><i class="fas fa-chart-bar"></i> Stats</div>
+                            <div class="mentor-stats-cards">
+                                <div class="mentor-stat-card">
+                                    <div class="mentor-stat-value">8</div>
+                                    <div class="mentor-stat-label"><i class="fas fa-calendar-check"></i> Sessions</div>
+                                </div>
+                                <div class="mentor-stat-card">
+                                    <div class="mentor-stat-value">5</div>
+                                    <div class="mentor-stat-label"><i class="fas fa-tasks"></i> Tasks</div>
+                                </div>
+                                <div class="mentor-stat-card">
+                                    <div class="mentor-stat-value">12h 45m</div>
+                                    <div class="mentor-stat-label"><i class="fas fa-clock"></i> Time Spent</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 💬 Actions -->
+                        <div class="detail-section">
+                            <div class="actions-group">
+                                <button class="action-btn secondary"><i class="fas fa-comment-dots"></i> Leave Feedback</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Sessions (from original design) -->
+                        
+
+                        <!-- Assigned Tasks (from original design) -->
+                        
+                    </div>
+                </div>
+
+                <!-- Mentor Card 2: Emily Davis (Apply similar structure) -->
+                <div class="mentor-card">
+                    <div class="mentor-header" onclick="toggleMentorCard(this)">
+                        <img src="../../assets/images/mentor-avatar.jpg" alt="Mentor Emily Davis" class="mentor-avatar"> <!-- Use different avatar if available -->
+                        <div class="mentor-header-info">
+                            <div class="mentor-name">Emily Davis</div>
+                            <div class="mentor-title">Senior Database Engineer</div>
+                        </div>
+                        <i class="fas fa-chevron-right expand-icon"></i>
+                    </div>
+                    <div class="mentor-details">
+                        <!-- ✅ Basic Info -->
+                        <div class="detail-section">
+                            <div class="detail-section-title"><i class="fas fa-user-circle"></i> Basic Info</div>
+                            <div class="detail-item">
+                                <i class="fas fa-envelope"></i>
+                                <div><strong>Email:</strong> <a href="mailto:emily.d@email.com">emily.d@email.com</a></div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-briefcase"></i>
+                                <div><strong>Expertise:</strong> Senior Database Engineer (SQL, NoSQL, Data Modeling)</div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-info-circle"></i>
+                                <div><strong>About Me:</strong></div>
+                            </div>
+                            <p class="mentor-bio-text">
+                                Database expert and educator. Loves helping mentees design scalable data solutions, optimize queries, and ace their interviews. Specializing in both relational and NoSQL databases.
+                            </p>
+                        </div>
+
+                        <!-- Stats Section (copy this from John Smith) -->
+                        <div class="detail-section mentor-stats-section">
+                            <div class="detail-section-title"><i class="fas fa-chart-bar"></i> Stats</div>
+                            <div class="mentor-stats-cards">
+                                <div class="mentor-stat-card">
+                                    <div class="mentor-stat-value">12</div>
+                                    <div class="mentor-stat-label"><i class="fas fa-calendar-check"></i> Sessions</div>
+                                </div>
+                                <div class="mentor-stat-card">
+                                    <div class="mentor-stat-value">7</div>
+                                    <div class="mentor-stat-label"><i class="fas fa-tasks"></i> Tasks</div>
+                                </div>
+                                <div class="mentor-stat-card">
+                                    <div class="mentor-stat-value">18h 20m</div>
+                                    <div class="mentor-stat-label"><i class="fas fa-clock"></i> Time Spent</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 💬 Actions (copy this from John Smith) -->
+                        <div class="detail-section">
+                            <div class="actions-group">
+                                <button class="action-btn secondary"><i class="fas fa-comment-dots"></i> Leave Feedback</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Add more mentor cards as needed -->
+            </div>
+        </main>
+    </div>
+    <script>
+    function toggleMentorCard(headerElem) {
+        const card = headerElem.closest('.mentor-card');
+        const allCards = document.querySelectorAll('.mentor-card');
+        allCards.forEach(c => {
+            if (c !== card) c.classList.remove('expanded');
+        });
+        card.classList.toggle('expanded');
+    }
+
+    // Optional: Add interactivity for action buttons (if you want to use JS instead of inline onclick)
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.action-btn.secondary').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (btn.textContent.includes('Leave Feedback')) {
+                    alert('Feedback form coming soon!');
+                }
+                // Add more actions as needed
+            });
+        });
+    });
+    </script>
+</body>
+</html>
