@@ -33,6 +33,7 @@ class Session extends Model
     protected $table = 'mentoring_sessions';
 
     protected $fillable = [
+        'mentorship_id',
         'mentor_id',
         'mentee_id',
         'title',
@@ -41,12 +42,24 @@ class Session extends Model
         'end_time',
         'status',
         'join_url',
+        'created_by_id',
+        'cancelled_by_id',
+        'cancellation_reason',
+        'session_type',      
+        'notes_mentee',      
+        'notes_mentor',      
+        'duration_minutes',  
     ];
 
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
     ];
+
+    public function mentorship(): BelongsTo
+    {
+        return $this->belongsTo(Mentorship::class);
+    }
 
     public function mentor(): BelongsTo
     {
@@ -61,5 +74,15 @@ class Session extends Model
     public function feedback(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Feedback::class);
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by_id');
+    }
+
+    public function cancelledBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'cancelled_by_id');
     }
 }

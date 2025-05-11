@@ -80,12 +80,17 @@ class SessionController extends Controller
             'join_url' => 'nullable|url|required_if:session_type,Video Call',
         ]);
 
+        $startTime = Carbon::parse($validatedData['scheduled_at']);
+        $endTime = $startTime->copy()->addMinutes($validatedData['duration_minutes']);
+
         $session = Session::create([
             'mentorship_id' => $mentorship->id,
+            'mentor_id' => $mentorship->mentor_id,
+            'mentee_id' => $mentorship->mentee_id,
             'title' => $validatedData['title'],
             'description' => $validatedData['description'] ?? null,
-            'scheduled_at' => Carbon::parse($validatedData['scheduled_at']),
-            'duration_minutes' => $validatedData['duration_minutes'],
+            'start_time' => $startTime,
+            'end_time' => $endTime,
             'session_type' => $validatedData['session_type'],
             'join_url' => $validatedData['join_url'] ?? null,
             'status' => 'upcoming',
@@ -129,7 +134,7 @@ class SessionController extends Controller
             });
         }
 
-        $sessions = $query->orderBy('scheduled_at', 'desc')->get();
+        $sessions = $query->orderBy('start_time', 'desc')->get();
         return response()->json($sessions);
     }
 
@@ -167,7 +172,7 @@ class SessionController extends Controller
                   });
             });
         }
-        $sessions = $query->orderBy('scheduled_at', 'desc')->get();
+        $sessions = $query->orderBy('start_time', 'desc')->get();
         return response()->json($sessions);
     }
 
@@ -259,8 +264,15 @@ class SessionController extends Controller
             unset($validatedData['status']);
         }
         
-        if (isset($validatedData['scheduled_at'])) {
-            $validatedData['scheduled_at'] = Carbon::parse($validatedData['scheduled_at']);
+        if (isset($validatedData['scheduled_at']) || isset($validatedData['duration_minutes'])) {
+            $newStartTime = isset($validatedData['scheduled_at']) ? Carbon::parse($validatedData['scheduled_at']) : $session->start_time;
+            $newDuration = $validatedData['duration_minutes'] ?? $session->start_time->diffInMinutes($session->end_time);
+            
+            $validatedData['start_time'] = $newStartTime;
+            $validatedData['end_time'] = $newStartTime->copy()->addMinutes($newDuration);
+            
+            unset($validatedData['scheduled_at']);
+            unset($validatedData['duration_minutes']);
         }
 
         $session->update($validatedData);

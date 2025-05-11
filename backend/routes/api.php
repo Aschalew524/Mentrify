@@ -19,7 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     
     // Dashboard endpoints
-    Route::get('/mentee/dashboard', [MenteeDantroller::class, 'index']);
+    Route::get('/mentee/dashboard', [MenteeController::class, 'index']);
     Route::get('/mentor/dashboard', [MentorController::class, 'index']);
 
     // Mentor listing endpoint
@@ -50,7 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Session Management Endpoints
     Route::post('/mentorships/{mentorship_id}/sessions', [SessionController::class, 'store']); // Schedule a new session
-    Route::get('/mentee/sessions', [SessionController::class, 'getMenteeSessions']);       // Mentee gets their sessions
+    Route::get('/mentee/sessions', [SessionController::class, 'getMenteeSessions']);       // Mentee gets their sessions (Updated)
     Route::get('/mentor/sessions', [SessionController::class, 'getMentorSessions']);       // Mentor gets their sessions
     Route::get('/sessions/{session_id}', [SessionController::class, 'show']);              // Get a specific session
     Route::put('/sessions/{session_id}', [SessionController::class, 'update']);            // Update/Reschedule a session

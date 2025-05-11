@@ -117,4 +117,42 @@ class MenteeController extends Controller
             'past_sessions' => $pastSessions,
         ]);
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/mentee/sessions",
+     *     summary="Get sessions for the authenticated mentee",
+     *     operationId="getMenteeSessions",
+     *     tags={"Mentees"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(name="status", in="query", description="Filter by status (upcoming, completed, cancelled)", @OA\Schema(type="string", enum={"upcoming", "completed", "cancelled"})),
+     *     @OA\Parameter(name="search", in="query", description="Search by session title or mentor name", @OA\Schema(type="string")),
+     *     @OA\Response(response=200, description="List of mentee sessions", @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Session"))),
+     *     @OA\Response(response=401, description="Unauthenticated")
+     * )
+     */
+    public function getMenteeSessions(Request $request): JsonResponse
+    {
+        $mentee = Auth::user();
+        $query = Session::whereHas('mentorship', function ($q) use ($mentee) {
+            $q->where('mentee_id', $mentee->id);
+        })->with(['mentorship.mentor:id,first_name,last_name,photo_url', 'createdBy:id,first_name,last_name']);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('title', 'like', "%{$searchTerm}%")
+                  ->orWhereHas('mentorship.mentor', function ($subQ) use ($searchTerm) {
+                      $subQ->where('first_name', 'like', "%{$searchTerm}%")
+                           ->orWhere('last_name', 'like', "%{$searchTerm}%");
+                  });
+            });
+        }
+
+        $sessions = $query->orderBy('scheduled_at', 'desc')->get();
+        return response()->json($sessions);
+    }
 }
