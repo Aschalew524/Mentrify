@@ -294,7 +294,7 @@
         "/api/mentee/dashboard": {
             "get": {
                 "tags": [
-                    "Mentee Dashboard"
+                    "Mentees"
                 ],
                 "summary": "Get mentee dashboard data",
                 "description": "Retrieves all necessary data for the mentee dashboard",
@@ -758,6 +758,557 @@
                     },
                     "401": {
                         "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/mentorships/{mentorship_id}/sessions": {
+            "post": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Schedule a new session",
+                "description": "Allows a user (mentor or mentee based on mentorship) to schedule a new session.",
+                "operationId": "scheduleSession",
+                "parameters": [
+                    {
+                        "name": "mentorship_id",
+                        "in": "path",
+                        "description": "ID of the mentorship",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Session details",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "scheduled_at",
+                                    "duration_minutes",
+                                    "session_type"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Career Development Discussion"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Discuss career goals and next steps.",
+                                        "nullable": true
+                                    },
+                                    "scheduled_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2025-06-15T10:00:00Z"
+                                    },
+                                    "duration_minutes": {
+                                        "type": "integer",
+                                        "example": 60
+                                    },
+                                    "session_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Video Call",
+                                            "In-person",
+                                            "Chat"
+                                        ],
+                                        "example": "Video Call"
+                                    },
+                                    "join_url": {
+                                        "type": "string",
+                                        "format": "url",
+                                        "example": "https://meet.example.com/session123",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Session scheduled successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Session"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden (User not part of this mentorship or mentorship not active)"
+                    },
+                    "404": {
+                        "description": "Mentorship not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/mentee/sessions": {
+            "get": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Get sessions for the authenticated mentee",
+                "operationId": "getMenteeSessions",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by status (upcoming, completed, cancelled)",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "upcoming",
+                                "completed",
+                                "cancelled"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search by session title or mentor name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of mentee sessions",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Session"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/mentor/sessions": {
+            "get": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Get sessions for the authenticated mentor",
+                "operationId": "getMentorSessions",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by status (upcoming, completed, cancelled)",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "upcoming",
+                                "completed",
+                                "cancelled"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search by session title or mentee name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of mentor sessions",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Session"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/sessions/{session_id}": {
+            "get": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Get a specific session",
+                "operationId": "getSessionById",
+                "parameters": [
+                    {
+                        "name": "session_id",
+                        "in": "path",
+                        "description": "ID of the session",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Session"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden (User not part of this session's mentorship)"
+                    },
+                    "404": {
+                        "description": "Session not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Update/Reschedule a session",
+                "description": "Allows a user (creator or participant) to update session details or reschedule it. Only for 'upcoming' sessions.",
+                "operationId": "updateSession",
+                "parameters": [
+                    {
+                        "name": "session_id",
+                        "in": "path",
+                        "description": "ID of the session",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Session details to update",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Updated Career Discussion"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Updated agenda.",
+                                        "nullable": true
+                                    },
+                                    "scheduled_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2025-06-16T11:00:00Z"
+                                    },
+                                    "duration_minutes": {
+                                        "type": "integer",
+                                        "example": 75
+                                    },
+                                    "session_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Video Call",
+                                            "In-person",
+                                            "Chat"
+                                        ],
+                                        "example": "Video Call"
+                                    },
+                                    "join_url": {
+                                        "type": "string",
+                                        "format": "url",
+                                        "example": "https://meet.example.com/session456",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Session updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Session"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden (User not authorized or session not 'upcoming')"
+                    },
+                    "404": {
+                        "description": "Session not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/sessions/{session_id}/cancel": {
+            "patch": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Cancel an upcoming session",
+                "operationId": "cancelSession",
+                "parameters": [
+                    {
+                        "name": "session_id",
+                        "in": "path",
+                        "description": "ID of the session",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Reason for cancellation",
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "cancellation_reason": {
+                                        "type": "string",
+                                        "example": "Unexpected conflict.",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Session cancelled successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Session"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden (User not authorized or session not 'upcoming')"
+                    },
+                    "404": {
+                        "description": "Session not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/sessions/{session_id}/complete": {
+            "patch": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Mark a session as completed",
+                "description": "Allows a participant (mentor or mentee) to mark an upcoming or ongoing session as completed.",
+                "operationId": "completeSession",
+                "parameters": [
+                    {
+                        "name": "session_id",
+                        "in": "path",
+                        "description": "ID of the session",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session marked as completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Session"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden (User not authorized or session cannot be marked as completed)"
+                    },
+                    "404": {
+                        "description": "Session not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/sessions/{session_id}/notes": {
+            "patch": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Add or update session notes",
+                "description": "Allows the mentor or mentee to add/update their respective notes for a session. The request should contain EITHER 'notes_mentee' OR 'notes_mentor', relevant to the user's role.",
+                "operationId": "updateSessionNotes",
+                "parameters": [
+                    {
+                        "name": "session_id",
+                        "in": "path",
+                        "description": "ID of the session",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Notes content. Provide EITHER 'notes_mentee' OR 'notes_mentor'.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "oneOf": [
+                                    {
+                                        "required": [
+                                            "notes_mentee"
+                                        ],
+                                        "properties": {
+                                            "notes_mentee": {
+                                                "type": "string",
+                                                "example": "Key takeaways and action items for me.",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    {
+                                        "required": [
+                                            "notes_mentor"
+                                        ],
+                                        "properties": {
+                                            "notes_mentor": {
+                                                "type": "string",
+                                                "example": "Observations and guidance provided.",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Session notes updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Session"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden (User not authorized to update notes for this role or session)"
+                    },
+                    "404": {
+                        "description": "Session not found"
+                    },
+                    "422": {
+                        "description": "Validation error (e.g., providing both note types, no notes, or notes for the wrong role)"
                     }
                 },
                 "security": [
@@ -1593,6 +2144,10 @@
             "description": "API Endpoints for managing mentorship connections"
         },
         {
+            "name": "Sessions",
+            "description": "API Endpoints for managing mentorship sessions"
+        },
+        {
             "name": "Tasks",
             "description": "API Endpoints for managing tasks"
         },
@@ -1601,8 +2156,8 @@
             "description": "Authentication"
         },
         {
-            "name": "Mentee Dashboard",
-            "description": "Mentee Dashboard"
+            "name": "Mentees",
+            "description": "Mentees"
         }
     ]
 }

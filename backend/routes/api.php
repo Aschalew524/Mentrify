@@ -7,6 +7,7 @@ use App\Http\Controllers\API\MenteeController;
 use App\Http\Controllers\API\MentorController;
 use App\Http\Controllers\API\MentorshipController; // Import MentorshipController
 use App\Http\Controllers\API\TaskController; // Import TaskController
+use App\Http\Controllers\API\SessionController; // Import SessionController
 
 Route::post('/register', [AuthController::class, 'register']); 
 Route::post('/login', [AuthController::class, 'login']);     
@@ -46,4 +47,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/tasks/{task_id}', [TaskController::class, 'show']); // Get a specific task (mentor or mentee)
     Route::put('/tasks/{task_id}', [TaskController::class, 'update']); // Mentor updates a task
     Route::delete('/tasks/{task_id}', [TaskController::class, 'destroy']); // Mentor deletes a task
+
+    // Session Management Endpoints
+    Route::post('/mentorships/{mentorship_id}/sessions', [SessionController::class, 'store']); // Schedule a new session
+    Route::get('/mentee/sessions', [SessionController::class, 'getMenteeSessions']);       // Mentee gets their sessions
+    Route::get('/mentor/sessions', [SessionController::class, 'getMentorSessions']);       // Mentor gets their sessions
+    Route::get('/sessions/{session_id}', [SessionController::class, 'show']);              // Get a specific session
+    Route::put('/sessions/{session_id}', [SessionController::class, 'update']);            // Update/Reschedule a session
+    Route::patch('/sessions/{session_id}/cancel', [SessionController::class, 'cancel']);      // Cancel a session
+    Route::patch('/sessions/{session_id}/complete', [SessionController::class, 'complete']);  // Mark a session as completed
+    Route::patch('/sessions/{session_id}/notes', [SessionController::class, 'updateNotes']); // Add/Update session notes
 });

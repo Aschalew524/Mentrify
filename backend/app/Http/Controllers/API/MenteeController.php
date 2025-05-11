@@ -26,7 +26,7 @@ class MenteeController extends Controller
      *     summary="Get mentee dashboard data",
      *     description="Retrieves all necessary data for the mentee dashboard",
      *     operationId="getMenteeDashboard",
-     *     tags={"Mentee Dashboard"},
+     *     tags={"Mentees"},
      *     security={{"sanctum":{}}},
      *     @OA\Response(
      *         response=200,
