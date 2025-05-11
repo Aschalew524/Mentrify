@@ -6,17 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Models\Feedback;
 use App\Models\Mentorship;
 use App\Models\Session;
+use App\Models\User; // Added User model
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 /**
  * @OA\Tag(
- *     name="Mentor Dashboard",
- *     description="API Endpoints for Mentor Dashboard"
+ *     name="Mentors", // Renamed tag
+ *     description="API Endpoints for Mentor Operations" // Updated description
  * )
  */
-class MentorDashboardController extends Controller
+class MentorController extends Controller // Assuming class name is changed from MentorDashboardController
 {
     /**
      * Get mentor dashboard data
@@ -25,7 +26,7 @@ class MentorDashboardController extends Controller
      *     summary="Get mentor dashboard data",
      *     description="Retrieves all necessary data for the mentor dashboard",
      *     operationId="getMentorDashboard",
-     *     tags={"Mentor Dashboard"},
+     *     tags={"Mentors"},
      *     security={{"sanctum":{}}},
      *     @OA\Response(
      *         response=200,
@@ -98,5 +99,50 @@ class MentorDashboardController extends Controller
             'upcoming_sessions' => $upcomingSessions,
             'recent_feedback' => $recentFeedback,
         ]);
+    }
+
+    /**
+     * Get all mentors
+     * @OA\Get(
+     *     path="/api/mentors",
+     *     summary="Get all mentors",
+     *     description="Retrieves a list of all users with the 'mentor' type.",
+     *     operationId="getMentors",
+     *     tags={"Mentors"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Mentors retrieved successfully",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/User")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     )
+     * )
+     */
+    public function getMentors(Request $request): JsonResponse
+    {
+        $mentors = User::where('user_type', 'mentor')
+            ->select([
+                'id', 
+                'first_name', 
+                'last_name', 
+                'email', 
+                'photo_url', 
+                'job_title', 
+                'company', 
+                'location', 
+                'category', 
+                'skills', 
+                'bio', 
+                'years_of_experience'
+            ])
+            ->get();
+
+        return response()->json($mentors);
     }
 }
