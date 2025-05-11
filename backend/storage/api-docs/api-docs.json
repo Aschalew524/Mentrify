@@ -363,7 +363,7 @@
         "/api/mentor/dashboard": {
             "get": {
                 "tags": [
-                    "Mentor Dashboard"
+                    "Mentors"
                 ],
                 "summary": "Get mentor dashboard data",
                 "description": "Retrieves all necessary data for the mentor dashboard",
@@ -402,6 +402,39 @@
                                         }
                                     },
                                     "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/mentors": {
+            "get": {
+                "tags": [
+                    "Mentors"
+                ],
+                "summary": "Get all mentors",
+                "description": "Retrieves a list of all users with the 'mentor' type.",
+                "operationId": "getMentors",
+                "responses": {
+                    "200": {
+                        "description": "Mentors retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/User"
+                                    }
                                 }
                             }
                         }
@@ -768,8 +801,8 @@
             "description": "API Endpoints for Mentee Dashboard"
         },
         {
-            "name": "Mentor Dashboard",
-            "description": "API Endpoints for Mentor Dashboard"
+            "name": "Mentors",
+            "description": "API Endpoints for Mentor Operations"
         },
         {
             "name": "Authentication",

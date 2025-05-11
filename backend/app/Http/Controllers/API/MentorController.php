@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * @OA\Tag(
- *     name="Mentors", // Renamed tag
- *     description="API Endpoints for Mentor Operations" // Updated description
+ *     name="Mentors",
+ *     description="API Endpoints for Mentor Operations"
  * )
  */
 class MentorController extends Controller // Assuming class name is changed from MentorDashboardController
