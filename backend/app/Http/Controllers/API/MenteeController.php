@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * @OA\Tag(
- *     name="Mentee Dashboard",
- *     description="API Endpoints for Mentee Dashboard"
+ *     name="Mentee",
+ *     description="API Endpoints for Mentee Operations"
  * )
  */
 class MenteeController extends Controller

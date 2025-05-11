@@ -6,7 +6,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\MenteeController;
 use App\Http\Controllers\API\MentorController;
 use App\Http\Controllers\API\MentorshipController; // Import MentorshipController
-
+use App\Http\Controllers\API\TaskController; // Import TaskController
 
 Route::post('/register', [AuthController::class, 'register']); 
 Route::post('/login', [AuthController::class, 'login']);     
@@ -37,4 +37,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // Get active and pending mentorships for mentor
     Route::get('/mentorships/mentor/active', [MentorshipController::class, 'getMentorActiveMentorships']);
     Route::get('/mentorships/mentor/pending', [MentorshipController::class, 'getMentorPendingMentorships']);
+
+    // Task Management Endpoints
+    Route::post('/mentorships/{mentorship_id}/tasks', [TaskController::class, 'store']); // Mentor creates a task for a mentee in a mentorship
+    Route::get('/mentee/tasks', [TaskController::class, 'getMenteeTasks']); // Mentee gets their tasks
+    Route::get('/mentor/tasks', [TaskController::class, 'getMentorTasks']); // Mentor gets tasks they assigned
+    Route::put('/tasks/{task_id}/status', [TaskController::class, 'updateTaskStatus']); // Mentee updates task status
+    Route::get('/tasks/{task_id}', [TaskController::class, 'show']); // Get a specific task (mentor or mentee)
+    Route::put('/tasks/{task_id}', [TaskController::class, 'update']); // Mentor updates a task
+    Route::delete('/tasks/{task_id}', [TaskController::class, 'destroy']); // Mentor deletes a task
 });

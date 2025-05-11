@@ -10,12 +10,6 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User; 
 
 /**
- * @OA\Info(
- *      version="1.0.0",
- *      title="Mentrify API Documentation",
- *      description="API documentation for the Mentrify application"
- * )
- *
  * @OA\Server(
  *      url=L5_SWAGGER_CONST_HOST,
  *      description="Mentrify API Server"
