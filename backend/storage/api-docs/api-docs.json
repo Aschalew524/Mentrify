@@ -449,6 +449,323 @@
                     }
                 ]
             }
+        },
+        "/api/mentorships/request/{mentor_id}": {
+            "post": {
+                "tags": [
+                    "Mentorships"
+                ],
+                "summary": "Request a mentorship",
+                "description": "Allows an authenticated user to request mentorship from a mentor.",
+                "operationId": "requestMentorship",
+                "parameters": [
+                    {
+                        "name": "mentor_id",
+                        "in": "path",
+                        "description": "ID of the mentor to request mentorship from",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Mentorship request created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Mentorship"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Mentor not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/mentorships/{mentorship_id}/accept": {
+            "put": {
+                "tags": [
+                    "Mentorships"
+                ],
+                "summary": "Accept a mentorship request",
+                "description": "Allows an authenticated mentor to accept a pending mentorship request.",
+                "operationId": "acceptMentorship",
+                "parameters": [
+                    {
+                        "name": "mentorship_id",
+                        "in": "path",
+                        "description": "ID of the mentorship request to accept",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mentorship request accepted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Mentorship"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden (e.g., user is not the designated mentor or request is not pending)"
+                    },
+                    "404": {
+                        "description": "Mentorship request not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/mentorships/{mentorship_id}/reject": {
+            "put": {
+                "tags": [
+                    "Mentorships"
+                ],
+                "summary": "Reject a mentorship request",
+                "description": "Allows an authenticated mentor to reject a pending mentorship request.",
+                "operationId": "rejectMentorship",
+                "parameters": [
+                    {
+                        "name": "mentorship_id",
+                        "in": "path",
+                        "description": "ID of the mentorship request to reject",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mentorship request rejected successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Mentorship"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden (e.g., user is not the designated mentor or request is not pending)"
+                    },
+                    "404": {
+                        "description": "Mentorship request not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/mentorships/{mentorship_id}/cancel": {
+            "delete": {
+                "tags": [
+                    "Mentorships"
+                ],
+                "summary": "Cancel a mentorship request",
+                "description": "Allows an authenticated mentee to cancel their pending mentorship request.",
+                "operationId": "cancelMentorshipRequest",
+                "parameters": [
+                    {
+                        "name": "mentorship_id",
+                        "in": "path",
+                        "description": "ID of the mentorship request to cancel",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mentorship request cancelled successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Mentorship"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden (e.g., user is not the mentee who made the request or request is not pending)"
+                    },
+                    "404": {
+                        "description": "Mentorship request not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/mentorships/mentee/active": {
+            "get": {
+                "tags": [
+                    "Mentorships"
+                ],
+                "summary": "Get connected mentors for the authenticated mentee",
+                "description": "Retrieves a list of active mentorships where the authenticated user is the mentee.",
+                "operationId": "getMenteeActiveMentorships",
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved active mentorships",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Mentorship"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/mentorships/mentee/pending": {
+            "get": {
+                "tags": [
+                    "Mentorships"
+                ],
+                "summary": "Get pending mentorship requests for the authenticated mentee",
+                "description": "Retrieves a list of pending mentorship requests where the authenticated user is the mentee.",
+                "operationId": "getMenteePendingMentorships",
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved pending mentorships",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Mentorship"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/mentorships/mentor/active": {
+            "get": {
+                "tags": [
+                    "Mentorships"
+                ],
+                "summary": "Get connected mentees for the authenticated mentor",
+                "description": "Retrieves a list of active mentorships where the authenticated user is the mentor.",
+                "operationId": "getMentorActiveMentorships",
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved active mentorships",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Mentorship"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/mentorships/mentor/pending": {
+            "get": {
+                "tags": [
+                    "Mentorships"
+                ],
+                "summary": "Get pending mentorship requests for the authenticated mentor",
+                "description": "Retrieves a list of pending mentorship requests where the authenticated user is the mentor.",
+                "operationId": "getMentorPendingMentorships",
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved pending mentorships",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Mentorship"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -803,6 +1120,10 @@
         {
             "name": "Mentors",
             "description": "API Endpoints for Mentor Operations"
+        },
+        {
+            "name": "Mentorships",
+            "description": "API Endpoints for managing mentorship connections"
         },
         {
             "name": "Authentication",

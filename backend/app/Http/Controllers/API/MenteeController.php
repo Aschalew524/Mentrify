@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Auth;
  *     description="API Endpoints for Mentee Dashboard"
  * )
  */
-class MenteeDashboardController extends Controller
+class MenteeController extends Controller
 {
     /**
      * Get mentee dashboard data
