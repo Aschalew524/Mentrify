@@ -360,6 +360,105 @@
                 ]
             }
         },
+        "/api/mentee/sessions": {
+            "get": {
+                "tags": [
+                    "Mentees"
+                ],
+                "summary": "Get sessions for the authenticated mentee",
+                "operationId": "getMenteeSessions",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by status (upcoming, completed, cancelled)",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "upcoming",
+                                "completed",
+                                "cancelled"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search by session title or mentor name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of mentee sessions",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Session"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/mentee/details/{id}": {
+            "get": {
+                "tags": [
+                    "Mentees"
+                ],
+                "summary": "Get user details by ID for a mentee",
+                "description": "Retrieves user details for the given ID. Accessible by any authenticated user.",
+                "operationId": "getMenteeDetailsById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/mentor/dashboard": {
             "get": {
                 "tags": [
@@ -441,6 +540,50 @@
                     },
                     "401": {
                         "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/mentor/details/{id}": {
+            "get": {
+                "tags": [
+                    "Mentors"
+                ],
+                "summary": "Get user details by ID for a mentor",
+                "description": "Retrieves user details for the given ID. Accessible by any authenticated user.",
+                "operationId": "getMentorDetailsById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "User not found"
                     }
                 },
                 "security": [
@@ -860,61 +1003,6 @@
                     },
                     "422": {
                         "description": "Validation error"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/api/mentee/sessions": {
-            "get": {
-                "tags": [
-                    "Sessions"
-                ],
-                "summary": "Get sessions for the authenticated mentee",
-                "operationId": "getMenteeSessions",
-                "parameters": [
-                    {
-                        "name": "status",
-                        "in": "query",
-                        "description": "Filter by status (upcoming, completed, cancelled)",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "upcoming",
-                                "completed",
-                                "cancelled"
-                            ]
-                        }
-                    },
-                    {
-                        "name": "search",
-                        "in": "query",
-                        "description": "Search by session title or mentor name",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of mentee sessions",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Session"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
                     }
                 },
                 "security": [

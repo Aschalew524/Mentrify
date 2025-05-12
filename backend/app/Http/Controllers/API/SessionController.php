@@ -101,17 +101,7 @@ class SessionController extends Controller
     }
 
     /**
-     * @OA\Get(
-     *     path="/api/mentee/sessions",
-     *     summary="Get sessions for the authenticated mentee",
-     *     operationId="getMenteeSessions",
-     *     tags={"Sessions"},
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(name="status", in="query", description="Filter by status (upcoming, completed, cancelled)", @OA\Schema(type="string", enum={"upcoming", "completed", "cancelled"})),
-     *     @OA\Parameter(name="search", in="query", description="Search by session title or mentor name", @OA\Schema(type="string")),
-     *     @OA\Response(response=200, description="List of mentee sessions", @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Session"))),
-     *     @OA\Response(response=401, description="Unauthenticated")
-     * )
+     * Get sessions for the authenticated mentee
      */
     public function getMenteeSessions(Request $request): JsonResponse
     {
@@ -145,9 +135,26 @@ class SessionController extends Controller
      *     operationId="getMentorSessions",
      *     tags={"Sessions"},
      *     security={{"sanctum":{}}},
-     *     @OA\Parameter(name="status", in="query", description="Filter by status (upcoming, completed, cancelled)", @OA\Schema(type="string", enum={"upcoming", "completed", "cancelled"})),
-     *     @OA\Parameter(name="search", in="query", description="Search by session title or mentee name", @OA\Schema(type="string")),
-     *     @OA\Response(response=200, description="List of mentor sessions", @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Session"))),
+     *     @OA\Parameter(
+     *         name="status", 
+     *         in="query", 
+     *         description="Filter by status (upcoming, completed, cancelled)", 
+     *         @OA\Schema(type="string", enum={"upcoming", "completed", "cancelled"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="search", 
+     *         in="query", 
+     *         description="Search by session title or mentee name", 
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200, 
+     *         description="List of mentor sessions", 
+     *         @OA\JsonContent(
+     *             type="array", 
+     *             @OA\Items(ref="#/components/schemas/Session")
+     *         )
+     *     ),
      *     @OA\Response(response=401, description="Unauthenticated")
      * )
      */
