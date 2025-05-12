@@ -57,4 +57,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/sessions/{session_id}/cancel', [SessionController::class, 'cancel']);      // Cancel a session
     Route::patch('/sessions/{session_id}/complete', [SessionController::class, 'complete']);  // Mark a session as completed
     Route::patch('/sessions/{session_id}/notes', [SessionController::class, 'updateNotes']); // Add/Update session notes
+
+    // User details endpoints
+    Route::get('/mentee/details/{id}', [MenteeController::class, 'getUserDetails']);
+    Route::get('/mentor/details/{id}', [MentorController::class, 'getUserDetails']);
 });

@@ -7,6 +7,7 @@ use App\Models\Feedback;
 use App\Models\Goal;
 use App\Models\Mentorship;
 use App\Models\Session;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -154,5 +155,47 @@ class MenteeController extends Controller
 
         $sessions = $query->orderBy('scheduled_at', 'desc')->get();
         return response()->json($sessions);
+    }
+
+    /**
+     * Get user details by ID
+     * @OA\Get(
+     *     path="/api/mentee/details/{id}",
+     *     summary="Get user details by ID for a mentee",
+     *     description="Retrieves user details for the given ID. Accessible by any authenticated user.",
+     *     operationId="getMenteeDetailsById",
+     *     tags={"Mentees"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the user to retrieve",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User details retrieved successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/User")
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="User not found"
+     *     )
+     * )
+     */
+    public function getUserDetails(Request $request, $id): JsonResponse
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+        // Add any specific authorization logic if needed, e.g. a mentee can only see their own or their mentor's profile.
+        return response()->json($user);
     }
 }

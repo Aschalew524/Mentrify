@@ -145,4 +145,46 @@ class MentorController extends Controller // Assuming class name is changed from
 
         return response()->json($mentors);
     }
+
+    /**
+     * Get user details by ID
+     * @OA\Get(
+     *     path="/api/mentor/details/{id}",
+     *     summary="Get user details by ID for a mentor",
+     *     description="Retrieves user details for the given ID. Accessible by any authenticated user.",
+     *     operationId="getMentorDetailsById",
+     *     tags={"Mentors"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the user to retrieve",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User details retrieved successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/User")
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="User not found"
+     *     )
+     * )
+     */
+    public function getUserDetails(Request $request, $id): JsonResponse
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+        // Add any specific authorization logic if needed, e.g. a mentor can only see their own or their mentees' profile.
+        return response()->json($user);
+    }
 }
