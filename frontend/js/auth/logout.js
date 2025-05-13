@@ -8,6 +8,7 @@ async function logout() {
         }
 
         const response = await fetch('http://mentrifyapis.biruk.tech/api/logout', {
+            
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
