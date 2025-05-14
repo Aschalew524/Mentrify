@@ -48,37 +48,53 @@ export async function cancelMentorship(requestId) {
 // Accept mentorship request
 export async function acceptMentorship(requestId) {
     const token = localStorage.getItem('access_token');
-    const response = await fetch(`${BASE_URL}/accept/${requestId}`, {
-        method: 'POST',
+    
+    if (!token) {
+        throw new Error('No authentication token found');
+    }
+    
+    const response = await fetch(`${BASE_URL}/api/mentorships/${requestId}/accept`, {
+        method: 'PUT',
         headers: {
+            'Authorization': `Bearer ${token}`,
             'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json'
         }
     });
+    
     if (!response.ok) {
         const errorText = await response.text();
-        console.error('Error response:', errorText);
-        throw new Error(errorText || 'Failed to accept mentorship request');
+        console.error('Failed to accept mentorship:', errorText);
+        throw new Error(`Failed to accept mentorship: ${response.status} ${response.statusText}`);
     }
-    return await response.json();
+    
+    return response.json();
 }
 
 // Reject mentorship request
-export async function rejectMentorship(requestId) {
+export async function rejectMentorship(mentorshipId) {
     const token = localStorage.getItem('access_token');
-    const response = await fetch(`${BASE_URL}/reject/${requestId}`, {
-        method: 'POST',
+    
+    if (!token) {
+        throw new Error('No authentication token found');
+    }
+    
+    const response = await fetch(`http://mentrifyapis.biruk.tech/api/mentorships/${mentorshipId}/reject`, {
+        method: 'PUT',
         headers: {
+            'Authorization': `Bearer ${token}`,
             'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json'
         }
     });
+    
     if (!response.ok) {
         const errorText = await response.text();
-        console.error('Error response:', errorText);
-        throw new Error(errorText || 'Failed to reject mentorship request');
+        console.error('Failed to reject mentorship:', errorText);
+        throw new Error(`Failed to reject mentorship: ${response.status} ${response.statusText}`);
     }
-    return await response.json();
+    
+    return response.json();
 }
 
 // Get mentee's pending requests

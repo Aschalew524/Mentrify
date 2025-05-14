@@ -69,3 +69,46 @@ const handleMobileMenu = () => {
 handleMobileMenu();
 // Listen for window resize
 window.addEventListener('resize', handleMobileMenu);
+
+// Display user profile from stored data
+function displayUserProfile() {
+    try {
+        const userData = JSON.parse(localStorage.getItem('user'));
+        if (!userData) {
+            window.location.href = '/pages/auth/login.html';
+            return;
+        }
+        
+        // Update welcome message
+        const welcomeText = document.querySelector('.welcome-text');
+        if (welcomeText) {
+            welcomeText.textContent = `Welcome back, ${userData.first_name}!`;
+        }
+
+        // Update profile dropdown
+        const profileName = document.querySelector('.profile-name');
+        const profileAvatar = document.querySelector('.profile-avatar');
+        
+        if (profileName) {
+            profileName.textContent = userData.first_name;
+        }
+        
+        if (profileAvatar && userData.photo_url) {
+            profileAvatar.src = userData.photo_url;
+        }
+
+        // Update additional profile information if needed
+        const userType = userData.user_type;
+        const jobTitle = userData.job_title;
+        const company = userData.company;
+        const location = userData.location;
+
+        // You can add more profile information updates here as needed
+
+    } catch (error) {
+        console.error('Error displaying user profile:', error);
+    }
+}
+
+// Call the function when the page loads
+document.addEventListener('DOMContentLoaded', displayUserProfile);

@@ -4,245 +4,493 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Mentors - Mentrify</title>
-    <link rel="stylesheet" href="../../css/global/global.css"> <!-- Assuming your CSS vars are here -->
+    <link rel="stylesheet" href="../../css/global/global.css">
     <link rel="stylesheet" href="../../css/dashboard/mentee_dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        .mentors-container {
+            padding: 1.5rem 1rem 1.5rem 1.5rem;
+            background: linear-gradient(135deg, #f8fbff 0%, #f0f7ff 100%);
+            min-height: 100vh;
+        }
      
-        /* Styles from your provided code for my_mentors.html */
         .mentors-title {
-            color: var(--primary);
+            color: var(--text);
             font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 2rem;
-            padding-left: 0;
+            margin-bottom: 1.8rem;
+            position: relative;
+            padding-left: 1.5rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
         }
+
+        .mentors-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 5px;
+            height: 2.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 3px;
+            box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.3);
+        }
+
         .mentors-list {
             display: flex;
             flex-direction: column;
-            gap: 2rem;
-            width: 100%;
-            padding: 0;
+            gap: 1rem;
+            max-width: 100%;
             margin: 0;
-            box-sizing: border-box;
         }
-        .mentor-card {
-            width: 100%;
-            background: var(--white); /* Changed to white for better contrast with details */
-            border-radius: var(--radius); /* Added radius for consistency */
-            box-shadow: var(--shadow-sm);
-            padding: 0;
-            overflow: hidden;
-            transition: box-shadow 0.2s;
-            box-sizing: border-box;
-            border: 1px solid var(--gray);
-        }
-        .mentor-header {
+
+        .mentor-row {
+            background: linear-gradient(135deg, var(--white) 0%, #fefefe 100%);
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
+            padding: 1.25rem 1.75rem;
             display: flex;
             align-items: center;
             gap: 1.5rem;
-            cursor: pointer;
-            padding: 1.5rem; /* Adjusted padding */
+            transition: all 0.3s ease;
+            border: 1px solid rgba(var(--primary-rgb), 0.1);
+            position: relative;
+            overflow: hidden;
         }
+
+        .mentor-row::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.4);
+        }
+
+        .mentor-row::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(var(--primary-rgb), 0.1) 50%, transparent 100%);
+        }
+
+        .mentor-row:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 35px rgba(0, 0, 0, 0.12);
+            border-color: rgba(var(--primary-rgb), 0.2);
+        }
+
+        .mentor-row:hover::before {
+            box-shadow: 0 0 25px rgba(var(--primary-rgb), 0.6);
+        }
+
+        .mentor-avatar-container {
+            position: relative;
+            flex-shrink: 0;
+        }
+
         .mentor-avatar {
-            width: 70px;
-            height: 70px;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid var(--primary); /* Slightly thicker border */
+            border: 3px solid var(--white);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            background: var(--background);
         }
-        .mentor-header-info {
+
+        .mentor-avatar:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .mentor-status-badge {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 20px;
+            height: 20px;
+            background: var(--success);
+            border-radius: 50%;
+            border: 3px solid var(--white);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .mentor-info {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
         }
+
         .mentor-name {
-            font-size: 1.3rem; /* Slightly larger */
-            font-weight: 600;
-            color: var(--primary);
-            margin: 0 0 0.25rem 0;
-        }
-        .mentor-title { /* This is the "Expertise" */
-            font-size: 1rem;
-            color: var(--secondary);
-        }
-        .expand-icon {
             font-size: 1.2rem;
-            color: var(--secondary);
-            margin-left: auto;
-            transition: transform 0.3s ease; /* Smoother transition */
-        }
-        .mentor-card.expanded .expand-icon {
-            transform: rotate(90deg);
-        }
-        .mentor-details {
-            display: none;
-            padding: 0 1.5rem 1.5rem 1.5rem; /* Adjusted padding */
-            border-top: 1px solid var(--gray);
-            /* background: var(--background); Removed background, details inherit card background */
-        }
-        .mentor-card.expanded .mentor-details {
-            display: block;
+            color: var(--text);
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: -0.02em;
         }
 
-        /* New styles for structured details */
-        .detail-section {
-            margin-bottom: 1.5rem;
-        }
-        .detail-section-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--primary-dark); /* Darker primary for section titles */
-            margin-bottom: 0.75rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--gray);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .detail-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.5rem;
-            color: var(--text);
-            font-size: 0.95rem;
-        }
-        .detail-item i {
-            color: var(--secondary);
-            width: 16px; /* For icon alignment */
-            text-align: center;
-        }
-        .detail-item strong { /* For labels like "Email:" */
-            color: var(--secondary);
-            font-weight: 500;
-        }
-        .mentor-bio-text {
-            color: var(--text);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            opacity: 0.9;
-            margin-top: 0.5rem;
-        }
-
-        .actions-group {
-            display: flex;
-            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        .action-btn {
-            background: var(--primary);
-            color: var(--white);
-            border: none;
-            border-radius: var(--radius);
-            padding: 0.7rem 1.2rem;
+        .mentor-title {
             font-size: 0.9rem;
+            color: var(--secondary);
+            margin: 0;
             font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .mentor-stats {
+            margin-top: 0.4rem;
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .mentor-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: rgba(var(--primary-rgb), 0.05);
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .mentor-stat-item:hover {
+            background: rgba(var(--primary-rgb), 0.1);
+        }
+
+        .mentor-stat-item i {
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .mentor-stat-item span {
+            color: var(--text-light);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .mentor-actions {
+            display: flex;
+            gap: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            border: none;
             cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            transition: background-color 0.2s;
-        }
-        .action-btn:hover {
-            background: var(--primary-dark);
-        }
-        .action-btn.secondary { /* For less prominent actions */
-            background-color: var(--secondary);
-        }
-         .action-btn.secondary:hover {
-            background-color: #5a6268; /* Darken secondary */
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
         }
 
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
 
-        /* Styles for lists (like recent sessions, tasks - reusing your old .list style) */
-        .list {
-            background: var(--background); /* Light background for lists within details */
-            border-radius: var(--radius);
-            padding: 1rem 1.5rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--gray);
+        .btn:hover::before {
+            left: 100%;
         }
-        .list-item {
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--gray);
-            display: flex;
-            align-items: center;
-            justify-content: space-between; /* Pushes date to the right */
-            gap: 1rem;
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
-        .list-item:last-child {
-            border-bottom: none;
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
         }
-        .list-item-title {
-            font-weight: 500;
-            color: var(--text); /* Changed from secondary for better readability */
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3);
         }
-        .list-item-date {
+
+        .btn-outline {
+            background: var(--white);
+            border: 2px solid rgba(var(--primary-rgb), 0.3);
             color: var(--primary);
-            font-size: 0.9rem;
-            /* margin-left: auto; Removed, using justify-content on parent */
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 900px) {
-            /* Sidebar and main content layout adjustments (from original) */
-            .dashboard-container {
-                grid-template-columns: 1fr;
-            }
-            .sidebar {
-                width: 100%;
-                position: static;
-                height: auto;
-                box-shadow: none;
-            }
-            .main-content {
-                padding: 1rem; /* Add some padding on mobile for main content */
-            }
-            .mentor-header, .mentor-details {
-                padding-left: 1rem;
-                padding-right: 1rem; /* Ensure consistent padding */
-            }
-            .mentors-title {
-                font-size: 1.8rem; /* Slightly smaller title on mobile */
-            }
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.2);
         }
 
-        .mentor-stats-section {
-            margin-bottom: 1.5rem;
+        /* Special styling for different action buttons */
+        .btn-message {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            border: none;
         }
-        .mentor-stats-cards {
-            display: flex;
-            gap: 1.5rem;
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-            flex-wrap: wrap;
+
+        .btn-message:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3);
         }
-        .mentor-stat-card {
-            background: linear-gradient(135deg, #eef2ff 60%, #c7d2fe 100%);
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(99,102,241,0.07);
-            padding: 1.1rem 1.5rem;
-            min-width: 110px;
+
+        .btn-session {
+            background: var(--white);
+            border: 2px solid #22c55e;
+            color: #22c55e;
+        }
+
+        .btn-session:hover {
+            background: #22c55e;
+            color: var(--white);
+            border-color: #22c55e;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-tasks {
+            background: var(--white);
+            border: 2px solid #22c55e;
+            color: #22c55e;
+        }
+
+        .btn-tasks:hover {
+            background: #22c55e;
+            color: var(--white);
+            border-color: #22c55e;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-feedback {
+            background: var(--white);
+            border: 2px solid #22c55e;
+            color: #22c55e;
+        }
+
+        .btn-feedback:hover {
+            background: #22c55e;
+            color: var(--white);
+            border-color: #22c55e;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        /* Empty state styling */
+        .mentors-list .empty-state {
             text-align: center;
-            flex: 1 1 110px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            padding: 4rem 2rem;
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 2px dashed rgba(var(--primary-rgb), 0.2);
+            margin: 0;
         }
-        .mentor-stat-value {
+
+        .empty-state-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            opacity: 0.7;
+        }
+
+        .empty-state h3 {
             font-size: 1.5rem;
-            font-weight: 700;
-            color: #3730a3;
-            margin-bottom: 0.2rem;
+            color: var(--text);
+            margin-bottom: 1rem;
+            font-weight: 600;
         }
-        .mentor-stat-label {
-            font-size: 0.98rem;
-            color: #6366f1;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-weight: 500;
+
+        .empty-state p {
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .empty-state .btn {
+            margin-top: 1rem;
+        }
+
+        /* Loading state */
+        .loading-state {
+            text-align: center;
+            padding: 3rem;
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(var(--primary-rgb), 0.1);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 968px) {
+            .mentors-container {
+                padding: 1.5rem;
+            }
+
+            .mentors-title {
+                font-size: 1.8rem;
+                margin-bottom: 2rem;
+            }
+
+            .mentor-row {
+                padding: 1.5rem;
+                gap: 1.25rem;
+            }
+
+            .mentor-actions {
+                flex-direction: column;
+                width: auto;
+                min-width: 140px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+                padding: 0.7rem 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mentors-container {
+                padding: 1rem;
+            }
+
+            .mentor-row {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+                padding: 1.5rem;
+            }
+
+            .mentor-info {
+                align-items: center;
+            }
+
+            .mentor-stats {
+                justify-content: center;
+            }
+
+            .mentor-actions {
+                width: 100%;
+                flex-direction: row;
+                justify-content: center;
+                gap: 0.8rem;
+            }
+
+            .btn {
+                flex: 1;
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mentor-row {
+                padding: 1rem;
+            }
+
+            .mentor-avatar {
+                width: 55px;
+                height: 55px;
+            }
+
+            .mentor-actions {
+                flex-direction: column;
+                gap: 0.6rem;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Page transition animation */
+        .mentors-container > * {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .mentor-row {
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .mentor-row:nth-child(1) { animation-delay: 0.1s; }
+        .mentor-row:nth-child(2) { animation-delay: 0.2s; }
+        .mentor-row:nth-child(3) { animation-delay: 0.3s; }
+        .mentor-row:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Beautiful scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(var(--primary-rgb), 0.05);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
         }
     </style>
 </head>
@@ -261,7 +509,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="../../pages/my_mentors/my_mentors.html" class="nav-link active" style="background: var(--primary); color: var(--white);">
+                        <a href="../../pages/my_mentors/my_mentors.html" class="nav-link active">
                             <i class="fas fa-users"></i>
                             My Mentors
                         </a>
@@ -272,7 +520,6 @@
                             Requests
                         </a>
                     </li>
-                    
                     <li class="nav-item">
                         <a href="../../pages/tasks/mentee_tasks.html" class="nav-link">
                             <i class="fas fa-bullseye"></i>
@@ -295,156 +542,155 @@
             </nav>
         </aside>
         <main class="main-content">
+            <div class="mentors-container">
             <h1 class="mentors-title">My Mentors</h1>
-            <div class="mentors-list">
-                <!-- Mentor Card 1: John Smith -->
-                <div class="mentor-card">
-                    <div class="mentor-header" onclick="toggleMentorCard(this)">
-                        <img src="../../assets/images/mentor-avatar.jpg" alt="Mentor John Smith" class="mentor-avatar">
-                        <div class="mentor-header-info">
-                            <div class="mentor-name">John Smith</div>
-                            <div class="mentor-title">Senior Backend Developer</div> <!-- This is Expertise -->
-                        </div>
-                        <i class="fas fa-chevron-right expand-icon"></i>
-                    </div>
-                    <div class="mentor-details">
-                        <!-- ✅ Basic Info -->
-                        <div class="detail-section">
-                            <div class="detail-item">
-                                <i class="fas fa-envelope"></i>
-                                <div><strong>Email:</strong> <a href="mailto:john.smith@email.com">john.smith@email.com</a></div>
-                            </div>
-                            <div class="detail-item">
-                                <i class="fas fa-briefcase"></i>
-                                <div><strong>Expertise:</strong> Senior Backend Developer (Node.js, Express, Cloud)</div>
-                            </div>
-                            <div class="detail-item">
-                                <i class="fas fa-info-circle"></i>
-                                <div><strong>About Me:</strong></div>
-                            </div>
-                            <p class="mentor-bio-text">
-                                Passionate about teaching and backend systems. With over 10 years of experience in Node.js, Express, and cloud infrastructure, I'm here to help you grow your skills and navigate the complexities of modern software development.
-                            </p>
-                        </div>
-
-                        <!-- Stats Section (add this above Leave Feedback) -->
-                        <div class="detail-section mentor-stats-section">
-                            <div class="detail-section-title"><i class="fas fa-chart-bar"></i> Stats</div>
-                            <div class="mentor-stats-cards">
-                                <div class="mentor-stat-card">
-                                    <div class="mentor-stat-value">8</div>
-                                    <div class="mentor-stat-label"><i class="fas fa-calendar-check"></i> Sessions</div>
-                                </div>
-                                <div class="mentor-stat-card">
-                                    <div class="mentor-stat-value">5</div>
-                                    <div class="mentor-stat-label"><i class="fas fa-tasks"></i> Tasks</div>
-                                </div>
-                                <div class="mentor-stat-card">
-                                    <div class="mentor-stat-value">12h 45m</div>
-                                    <div class="mentor-stat-label"><i class="fas fa-clock"></i> Time Spent</div>
+                <div class="mentors-list" id="connectedMentors">
+                    <!-- Connected mentors will be loaded here -->
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- 💬 Actions -->
-                        <div class="detail-section">
-                            <div class="actions-group">
-                                <button class="action-btn secondary"><i class="fas fa-comment-dots"></i> Leave Feedback</button>
-                            </div>
-                        </div>
-                        
-                        <!-- Recent Sessions (from original design) -->
-                        
-
-                        <!-- Assigned Tasks (from original design) -->
-                        
-                    </div>
-                </div>
-
-                <!-- Mentor Card 2: Emily Davis (Apply similar structure) -->
-                <div class="mentor-card">
-                    <div class="mentor-header" onclick="toggleMentorCard(this)">
-                        <img src="../../assets/images/mentor-avatar.jpg" alt="Mentor Emily Davis" class="mentor-avatar"> <!-- Use different avatar if available -->
-                        <div class="mentor-header-info">
-                            <div class="mentor-name">Emily Davis</div>
-                            <div class="mentor-title">Senior Database Engineer</div>
-                        </div>
-                        <i class="fas fa-chevron-right expand-icon"></i>
-                    </div>
-                    <div class="mentor-details">
-                        <!-- ✅ Basic Info -->
-                        <div class="detail-section">
-                            <div class="detail-section-title"><i class="fas fa-user-circle"></i> Basic Info</div>
-                            <div class="detail-item">
-                                <i class="fas fa-envelope"></i>
-                                <div><strong>Email:</strong> <a href="mailto:emily.d@email.com">emily.d@email.com</a></div>
-                            </div>
-                            <div class="detail-item">
-                                <i class="fas fa-briefcase"></i>
-                                <div><strong>Expertise:</strong> Senior Database Engineer (SQL, NoSQL, Data Modeling)</div>
-                            </div>
-                            <div class="detail-item">
-                                <i class="fas fa-info-circle"></i>
-                                <div><strong>About Me:</strong></div>
-                            </div>
-                            <p class="mentor-bio-text">
-                                Database expert and educator. Loves helping mentees design scalable data solutions, optimize queries, and ace their interviews. Specializing in both relational and NoSQL databases.
-                            </p>
-                        </div>
-
-                        <!-- Stats Section (copy this from John Smith) -->
-                        <div class="detail-section mentor-stats-section">
-                            <div class="detail-section-title"><i class="fas fa-chart-bar"></i> Stats</div>
-                            <div class="mentor-stats-cards">
-                                <div class="mentor-stat-card">
-                                    <div class="mentor-stat-value">12</div>
-                                    <div class="mentor-stat-label"><i class="fas fa-calendar-check"></i> Sessions</div>
-                                </div>
-                                <div class="mentor-stat-card">
-                                    <div class="mentor-stat-value">7</div>
-                                    <div class="mentor-stat-label"><i class="fas fa-tasks"></i> Tasks</div>
-                                </div>
-                                <div class="mentor-stat-card">
-                                    <div class="mentor-stat-value">18h 20m</div>
-                                    <div class="mentor-stat-label"><i class="fas fa-clock"></i> Time Spent</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 💬 Actions (copy this from John Smith) -->
-                        <div class="detail-section">
-                            <div class="actions-group">
-                                <button class="action-btn secondary"><i class="fas fa-comment-dots"></i> Leave Feedback</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Add more mentor cards as needed -->
-            </div>
         </main>
-    </div>
-    <script>
-    function toggleMentorCard(headerElem) {
-        const card = headerElem.closest('.mentor-card');
-        const allCards = document.querySelectorAll('.mentor-card');
-        allCards.forEach(c => {
-            if (c !== card) c.classList.remove('expanded');
-        });
-        card.classList.toggle('expanded');
-    }
+                        </div>
+                        
+    <script type="module">
+        import { getActiveMentors } from '../../js/mentorship/mentorship.js';
 
-    // Optional: Add interactivity for action buttons (if you want to use JS instead of inline onclick)
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.action-btn.secondary').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                if (btn.textContent.includes('Leave Feedback')) {
-                    alert('Feedback form coming soon!');
+        const DEFAULT_AVATAR_URL = '../../assets/images/default-avatar.png';
+
+        // Load connected mentors (active mentorships)
+        async function loadConnectedMentors() {
+            try {
+                const mentorsList = document.getElementById('connectedMentors');
+                mentorsList.innerHTML = `
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Loading your mentors...</p>
+                    </div>
+                `;
+
+                const response = await getActiveMentors();
+                const mentors = Array.isArray(response) ? response : (response.data || []);
+                
+                if (!mentors || mentors.length === 0) {
+                    mentorsList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-user-friends"></i>
+                            </div>
+                            <h3>No Active Mentors Yet</h3>
+                            <p>You haven't connected with any mentors yet. Start your mentorship journey by finding the perfect mentor for your goals.</p>
+                            <a href="../find_mentor/find_mentor.html" class="btn btn-primary">
+                                <i class="fas fa-search"></i>
+                                Find a Mentor
+                            </a>
+                            </div>
+                    `;
+                    return;
                 }
-                // Add more actions as needed
-            });
+
+                mentorsList.innerHTML = mentors.map(mentorship => {
+                    const mentor = mentorship.mentor;
+                    const displayName = `${mentor.first_name || ''} ${mentor.last_name || ''}`.trim() || `Mentor #${mentor.id}`;
+                    
+                    return `
+                        <div class="mentor-row">
+                            <div class="mentor-avatar-container">
+                                <img src="${mentor.photo_url || DEFAULT_AVATAR_URL}" 
+                                     alt="${displayName}" 
+                                     class="mentor-avatar"
+                                     onerror="this.src='${DEFAULT_AVATAR_URL}'">
+                                <div class="mentor-status-badge"></div>
+                            </div>
+                            <div class="mentor-info">
+                                <h3 class="mentor-name">${displayName}</h3>
+                                ${mentor.job_title ? `<p class="mentor-title">${mentor.job_title}${mentor.company ? ` • ${mentor.company}` : ''}</p>` : ''}
+                                <div class="mentor-stats">
+                                    ${mentor.years_of_experience ? `
+                                        <div class="mentor-stat-item">
+                                            <i class="fas fa-briefcase"></i>
+                                            <span>${mentor.years_of_experience}+ years</span>
+                        </div>
+                                    ` : ''}
+                                    ${mentor.location ? `
+                                        <div class="mentor-stat-item">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <span>${mentor.location}</span>
+                                </div>
+                                    ` : ''}
+                                    ${mentor.availability_hours_week ? `
+                                        <div class="mentor-stat-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>${mentor.availability_hours_week}h/week</span>
+                                </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            <div class="mentor-actions">
+                                <button class="btn btn-outline btn-message" onclick="openChat('${mentor.id}')">
+                                    <i class="fas fa-envelope"></i>
+                                    Message
+                                </button>
+                                <button class="btn btn-outline btn-session" onclick="scheduleSession('${mentor.id}')">
+                                    <i class="fas fa-calendar"></i>
+                                    Sessions
+                                </button>
+                                <button class="btn btn-outline btn-tasks" onclick="viewTasks('${mentor.id}')">
+                                    <i class="fas fa-tasks"></i>
+                                    Tasks
+                                </button>
+                                <button class="btn btn-outline btn-feedback" onclick="giveFeedback('${mentor.id}')">
+                                    <i class="fas fa-star"></i>
+                                    Feedback
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading connected mentors:', error);
+                const mentorsList = document.getElementById('connectedMentors');
+                mentorsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon" style="color: var(--danger);">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3>Failed to Load Mentors</h3>
+                        <p>We couldn't load your mentors right now. Please check your connection and try again.</p>
+                        <button class="btn btn-primary" onclick="loadConnectedMentors()">
+                            <i class="fas fa-redo"></i>
+                            Try Again
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Message functionality
+        window.openChat = function(mentorId) {
+            window.location.href = `../messages/mentee_messages/mentee_messages.html?mentor=${mentorId}`;
+        };
+
+        // Schedule session functionality
+        window.scheduleSession = function(mentorId) {
+            window.location.href = `../sessions/mentee_sessions.html?mentor=${mentorId}`;
+        };
+
+        // View tasks functionality
+        window.viewTasks = function(mentorId) {
+            window.location.href = `../tasks/mentee_tasks.html?mentor=${mentorId}`;
+        };
+
+        // Give feedback functionality
+        window.giveFeedback = function(mentorId) {
+            window.location.href = `../feedback/feedback.html?mentor=${mentorId}`;
+        };
+
+        // Load initial data when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            loadConnectedMentors();
         });
-    });
+
+        // Expose function globally for retry button
+        window.loadConnectedMentors = loadConnectedMentors;
     </script>
 </body>
 </html>
