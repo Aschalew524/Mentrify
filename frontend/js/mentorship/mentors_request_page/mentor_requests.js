@@ -1,4 +1,4 @@
-import { getPendingMenteeRequests, acceptMentorship, rejectMentorship } from '../mentorship.js';
+import { getPendingMenteeRequests, acceptMentorship, rejectMentorship, cancelMentorship } from '../mentorship.js';
 
 const DEFAULT_AVATAR_URL = '../../assets/images/default-avatar.png';
 
@@ -339,7 +339,7 @@ export async function loadRequests() {
                     interests = mentee.interests;
                 } else if (typeof mentee.interests === 'string') {
                     interests = mentee.interests.split(',').map(interest => interest.trim()).filter(interest => interest);
-                }
+            }
             }
 
             let goals = [];
@@ -394,13 +394,13 @@ export async function loadRequests() {
                         ${isPending ? `
                             <div class="action-buttons">
                                 <button class="btn btn-success accept-btn" data-request-id="${request.id}" data-mentee-id="${mentee.id}">
-                                    <i class="fas fa-check"></i>
-                                    Accept
-                                </button>
+                                <i class="fas fa-check"></i>
+                                Accept
+                            </button>
                                 <button class="btn btn-danger reject-btn" data-request-id="${request.id}" data-mentee-id="${mentee.id}">
-                                    <i class="fas fa-times"></i>
-                                    Reject
-                                </button>
+                                <i class="fas fa-times"></i>
+                                Reject
+                            </button>
                             </div>
                         ` : ''}
                     </div>

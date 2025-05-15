@@ -10,148 +10,331 @@
     <link rel="stylesheet" href="../../css/dashboard/mentor_dashboard.css">
     <style>
         .mentees-container {
-            padding: 1.5rem;
+            padding: 2rem;
+            background: var(--background);
+            min-height: 100vh;
         }
 
         .section-title {
-            font-size: 1.5rem;
-            color: var(--secondary);
-            margin-bottom: 1rem;
-        }
-
-        .mentees-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
+            font-size: 1.8rem;
+            color: var(--text);
             margin-bottom: 2rem;
+            font-weight: 600;
+            position: relative;
+            padding-left: 1rem;
         }
 
-        .mentee-card {
-            background: var(--white);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 1rem;
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 2rem;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .mentees-list {
             display: flex;
             flex-direction: column;
             gap: 1rem;
         }
 
-        .mentee-header {
+        .mentee-row {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1rem 1.5rem;
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 1.25rem;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mentee-row::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary);
+        }
+
+        .mentee-row:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 15px rgba(var(--primary-rgb), 0.08);
+            border-color: var(--primary);
         }
 
         .mentee-avatar {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             object-fit: cover;
+            border: 2px solid var(--primary-light);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .mentee-avatar:hover {
+            transform: scale(1.05);
         }
 
         .mentee-info {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
         }
 
         .mentee-name {
             font-size: 1.1rem;
             color: var(--text);
             margin: 0;
+            font-weight: 600;
         }
 
         .mentee-title {
             font-size: 0.9rem;
             color: var(--secondary);
-            margin: 0.25rem 0;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .mentee-stats {
+            margin-top: 0.125rem;
+        }
+
+        .mentee-stats small {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .mentee-stats i {
+            color: var(--primary);
+            font-size: 0.75rem;
         }
 
         .mentee-actions {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            flex-shrink: 0;
         }
 
         .btn {
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
             font-size: 0.85rem;
-            font-weight: 500;
+            font-weight: 600;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            transition: var(--transition);
-            flex: 1;
-            justify-content: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .btn-primary {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: var(--white);
         }
 
-        .btn-success {
-            background: var(--success);
-            color: var(--white);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: var(--white);
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3);
         }
 
         .btn-outline {
-            background: transparent;
-            border: 1px solid var(--primary);
+            background: var(--white);
+            border: 2px solid rgba(var(--primary-rgb), 0.3);
             color: var(--primary);
         }
 
-        .pending-requests {
-            margin-top: 2rem;
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.2);
         }
 
-        .request-card {
+        /* Special styling for different action buttons */
+        .btn-message {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+        }
+
+        .btn-message:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3);
+        }
+
+        .btn-session {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+        }
+
+        .btn-session:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3);
+        }
+
+        .btn-task {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+        }
+
+        .btn-task:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3);
+        }
+
+        /* Empty state styling */
+        .mentees-list p {
+            text-align: center;
+            padding: 2.5rem;
             background: var(--white);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            padding: 1rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            font-size: 1rem;
+            color: var(--text-light);
+            border: 2px dashed var(--border);
+            margin: 0;
         }
 
-        .request-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+        /* Loading state */
+        .loading {
+            display: inline-block;
+            position: relative;
         }
 
-        .request-actions {
-            display: flex;
-            gap: 0.5rem;
+        .loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            margin: 8px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            animation: loading 1s ease-in-out infinite;
         }
 
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.8rem;
-            font-weight: 500;
+        @keyframes loading {
+            to {
+                transform: rotate(360deg);
+            }
         }
 
-        .status-pending {
-            background: var(--warning-light);
-            color: var(--warning);
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .mentees-container {
+                padding: 1rem;
+            }
+
+            .mentee-row {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .mentee-info {
+                align-items: center;
+            }
+
+            .mentee-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
         }
 
-        .status-accepted {
-            background: var(--success-light);
-            color: var(--success);
+        @media (max-width: 480px) {
+            .mentee-row {
+                padding: 0.75rem;
+            }
+
+            .mentee-avatar {
+                width: 45px;
+                height: 45px;
+            }
+
+            .mentee-actions {
+                gap: 0.5rem;
+            }
         }
 
-        .status-rejected {
-            background: var(--danger-light);
-            color: var(--danger);
+        /* Smooth page transitions */
+        .mentees-container > * {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Beautiful scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--background);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
         }
     </style>
 </head>
@@ -214,119 +397,95 @@
         <main class="main-content">
             <div class="mentees-container">
                 <h1 class="section-title">My Mentees</h1>
-                <div class="mentees-grid" id="connectedMentees">
+                <div class="mentees-list" id="connectedMentees">
                     <!-- Connected mentees will be loaded here -->
-                </div>
-
-                <div class="pending-requests">
-                    <h2 class="section-title">Pending Requests</h2>
-                    <div id="pendingRequests">
-                        <!-- Pending requests will be loaded here -->
-                    </div>
                 </div>
             </div>
         </main>
     </div>
 
     <script type="module">
-        import {
-            getConnectedMentees,
-            getPendingMenteeRequests,
-            acceptMentorship,
-            rejectMentorship
-        } from '../../js/mentorship/mentorship.js';
+        import { getActiveMentees } from '../../js/mentorship/mentorship.js';
 
-        // Load connected mentees
+        const DEFAULT_AVATAR_URL = '../../assets/images/default-avatar.jpg';
+
+        // Load connected mentees (active mentorships)
         async function loadConnectedMentees() {
             try {
-                const mentees = await getConnectedMentees();
-                const menteesGrid = document.getElementById('connectedMentees');
+                const menteesList = document.getElementById('connectedMentees');
+                menteesList.innerHTML = '<p style="text-align: center;">Loading mentees...</p>';
+
+                const response = await getActiveMentees();
+                const mentees = Array.isArray(response) ? response : (response.data || []);
                 
-                menteesGrid.innerHTML = mentees.map(mentee => `
-                    <div class="mentee-card">
-                        <div class="mentee-header">
-                            <img src="${mentee.avatar}" alt="${mentee.name}" class="mentee-avatar">
+                if (!mentees || mentees.length === 0) {
+                    menteesList.innerHTML = '<p style="text-align: center; color: var(--secondary);">No active mentees yet. Check your <a href="../mentor_requests/mentor_requests.html" style="color: var(--primary);">pending requests</a> to accept mentorship requests.</p>';
+                    return;
+                }
+
+                menteesList.innerHTML = mentees.map(mentorship => {
+                    const mentee = mentorship.mentee;
+                    const displayName = `${mentee.first_name || ''} ${mentee.last_name || ''}`.trim() || `Mentee #${mentee.id}`;
+                    
+                    return `
+                        <div class="mentee-row">
+                            <img src="${mentee.photo_url || DEFAULT_AVATAR_URL}" 
+                                 alt="${displayName}" 
+                                 class="mentee-avatar"
+                                 onerror="this.src='${DEFAULT_AVATAR_URL}'">
                             <div class="mentee-info">
-                                <h3 class="mentee-name">${mentee.name}</h3>
-                                <p class="mentee-title">${mentee.title}</p>
+                                <h3 class="mentee-name">${displayName}</h3>
+                                ${mentee.job_title ? `<p class="mentee-title">${mentee.job_title}${mentee.company ? ` at ${mentee.company}` : ''}</p>` : ''}
+                                <div class="mentee-stats">
+                                    ${mentee.location ? `<small><i class="fas fa-map-marker-alt"></i> ${mentee.location}</small>` : ''}
+                                </div>
+                            </div>
+                            <div class="mentee-actions">
+                                <button class="btn btn-outline btn-message" onclick="openChat('${mentee.id}')">
+                                    <i class="fas fa-envelope"></i>
+                                    Message
+                                </button>
+                                <button class="btn btn-outline btn-session" onclick="scheduleSession('${mentee.id}')">
+                                    <i class="fas fa-calendar"></i>
+                                    Sessions
+                                </button>
+                                <button class="btn btn-outline btn-task" onclick="assignTask('${mentee.id}')">
+                                    <i class="fas fa-tasks"></i>
+                                    Assign Task
+                                </button>
                             </div>
                         </div>
-                        <div class="mentee-actions">
-                            <a href="../messages/mentor_messages/mentor_messages.html?mentee=${mentee.id}" class="btn btn-primary">
-                                <i class="fas fa-envelope"></i>
-                                Message
-                            </a>
-                            <a href="../sessions/mentor_sessions.html?mentee=${mentee.id}" class="btn btn-outline">
-                                <i class="fas fa-calendar"></i>
-                                Schedule Session
-                            </a>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             } catch (error) {
                 console.error('Error loading connected mentees:', error);
+                const menteesList = document.getElementById('connectedMentees');
+                menteesList.innerHTML = '<p style="text-align: center; color: var(--danger);">Failed to load mentees. Please refresh the page.</p>';
             }
         }
 
-        // Load pending requests
-        async function loadPendingRequests() {
-            try {
-                const requests = await getPendingMenteeRequests();
-                const pendingRequests = document.getElementById('pendingRequests');
-                
-                pendingRequests.innerHTML = requests.map(request => `
-                    <div class="request-card">
-                        <div class="request-info">
-                            <img src="${request.mentee.avatar}" alt="${request.mentee.name}" class="mentee-avatar">
-                            <div>
-                                <h3 class="mentee-name">${request.mentee.name}</h3>
-                                <p class="mentee-title">${request.mentee.title}</p>
-                                <span class="status-badge status-pending">Pending</span>
-                            </div>
-                        </div>
-                        <div class="request-actions">
-                            <button class="btn btn-success" onclick="acceptRequest('${request.id}')">
-                                <i class="fas fa-check"></i>
-                                Accept
-                            </button>
-                            <button class="btn btn-danger" onclick="rejectRequest('${request.id}')">
-                                <i class="fas fa-times"></i>
-                                Reject
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading pending requests:', error);
-            }
-        }
-
-        // Accept mentorship request
-        window.acceptRequest = async function(requestId) {
-            try {
-                await acceptMentorship(requestId);
-                await loadPendingRequests(); // Reload pending requests
-                await loadConnectedMentees(); // Reload connected mentees
-            } catch (error) {
-                console.error('Error accepting request:', error);
-                alert('Failed to accept request. Please try again.');
-            }
+        // Message functionality (placeholder)
+        window.openChat = function(menteeId) {
+            // Redirect to messages page with mentee ID
+            window.location.href = `../messages/mentor_messages/mentor_messages.html?mentee=${menteeId}`;
         };
 
-        // Reject mentorship request
-        window.rejectRequest = async function(requestId) {
-            try {
-                await rejectMentorship(requestId);
-                await loadPendingRequests(); // Reload pending requests
-            } catch (error) {
-                console.error('Error rejecting request:', error);
-                alert('Failed to reject request. Please try again.');
-            }
+        // Assign task functionality (placeholder)
+        window.assignTask = function(menteeId) {
+            // Redirect to tasks page with mentee ID
+            window.location.href = `../tasks/mentor_tasks.html?mentee=${menteeId}&action=assign`;
         };
 
-        // Load initial data
-        loadConnectedMentees();
-        loadPendingRequests();
+        // Schedule session functionality (placeholder)
+        window.scheduleSession = function(menteeId) {
+            // Redirect to sessions page with mentee ID
+            window.location.href = `../sessions/mentor_sessions.html?mentee=${menteeId}`;
+        };
+
+        // Load initial data when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            loadConnectedMentees();
+        });
     </script>
 </body>
 </html>

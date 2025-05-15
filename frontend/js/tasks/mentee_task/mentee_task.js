@@ -1,317 +1,594 @@
-// Mentee-side task logic (role-specific)
-const TaskStatus = {
-    NOT_STARTED: 'not-started',
-    IN_PROGRESS: 'in-progress',
-    COMPLETED: 'completed'
-};
-console.log('TaskStatus object:', TaskStatus);
-
-const menteeTasks = [
-    {
-        id: 1,
-        title: "Build a REST API",
-        description: "Create a RESTful API using Node.js and Express. Implement CRUD operations for a todo list application. Ensure proper error handling and validation.",
-        status: TaskStatus.NOT_STARTED,
-        dueDate: "Mar 30, 2024",
-        assignedBy: {
-            name: "John Smith",
-            title: "Senior Backend Developer",
-            avatar: "../../assets/images/mentor-avatar.jpg"
-        },
-        assignedTo: { id: 1 },
-        requirements: ["Node.js", "Express.js", "Postman", "MongoDB (optional)"],
-        resources: ["https://expressjs.com/", "https://www.mongodb.com/docs/manual/tutorial/crud-operations/"]
-    },
-    {
-        id: 2,
-        title: "Frontend Implementation",
-        description: "Implement the frontend for the todo list application using React. Components should include task list, task item, add task form. State management can be done with Context API or Redux (optional).",
-        status: TaskStatus.IN_PROGRESS,
-        dueDate: "Mar 31, 2024",
-        assignedBy: {
-            name: "John Smith",
-            title: "Senior Backend Developer",
-            avatar: "../../assets/images/mentor-avatar.jpg"
-        },
-        assignedTo: { id: 1 },
-        requirements: ["React", "HTML", "CSS", "API Integration"],
-        resources: ["https://react.dev/learn"]
-    },
-    {
-        id: 3,
-        title: "Database Design",
-        description: "Design a database schema for an e-commerce platform. Consider products, categories, users, orders, and reviews. Create an ERD (Entity Relationship Diagram).",
-        status: TaskStatus.COMPLETED,
-        dueDate: "Apr 2, 2024",
-        assignedBy: {
-            name: "Emily Davis",
-            title: "Senior Database Engineer",
-            avatar: "../../assets/images/mentor-avatar.jpg"
-        },
-        assignedTo: { id: 1 },
-        requirements: ["SQL or NoSQL knowledge", "ERD Tool (e.g., draw.io, Lucidchart)"],
-        resources: []
-    },
-    {
-        id: 4,
-        title: "Authentication System",
-        description: "Implement user authentication using JWT tokens. Include login, registration, and password reset functionality. Secure password storage using hashing.",
-        status: TaskStatus.NOT_STARTED,
-        dueDate: "Apr 5, 2024",
-        assignedBy: {
-            name: "John Smith",
-            title: "Senior Backend Developer",
-            avatar: "../../assets/images/mentor-avatar.jpg"
-        },
-        assignedTo: { id: 1 },
-        requirements: ["JWT", "Hashing (bcrypt)", "Backend framework (e.g., Node/Express)"],
-        resources: ["https://jwt.io/introduction"]
-    }
-];
-console.log('Initial menteeTasks:', JSON.parse(JSON.stringify(menteeTasks)));
-
-const currentMenteeId = 1;
+// Global variables
+let allTasks = [];
 let currentFilter = 'all';
 
-// Selectors for main view elements
-const tasksHeaderWrapper = document.querySelector('.tasks-header-wrapper');
-const taskDetailContainer = document.querySelector('.task-detail-container');
+// DOM Elements
+const tasksList = document.querySelector('.tasks-list');
+const filterButtons = document.querySelectorAll('.filter-btn');
+const descriptionModal = document.getElementById('descriptionModal');
+const modalTaskTitle = document.getElementById('modalTaskTitle');
+const modalTaskDescription = document.getElementById('modalTaskDescription');
 
+// Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM Content Loaded - Initializing tasks page');
+    fetchTasks();
+    setupFilterListeners();
+});
 
-function renderMenteeTasks() {
-    console.log('renderMenteeTasks called. Current filter:', currentFilter);
-    const tasksList = document.querySelector('.tasks-list'); // tasksList is inside tasksHeaderWrapper now
-    if (!tasksList) {
-        console.error('.tasks-list element not found!');
+// Setup filter button listeners
+function setupFilterListeners() {
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const status = button.dataset.status;
+            filterTasks(status);
+            
+            // Update active state
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+        });
+    });
+}
+
+// Fetch tasks from API
+async function fetchTasks() {
+    try {
+        const token = localStorage.getItem('access_token');
+        console.log('Token check:', {
+            access_token: localStorage.getItem('access_token') ? 'exists' : 'not found',
+            finalToken: token ? 'exists' : 'not found'
+        });
+        
+        if (!token) {
+            console.error('No authentication token found in storage');
+            showError('Please log in to view your tasks');
+            renderTasks([]);
         return;
     }
 
-    // Ensure list view is visible and detail view is hidden
-    if (tasksHeaderWrapper) tasksHeaderWrapper.style.display = 'block';
-    if (taskDetailContainer) taskDetailContainer.style.display = 'none';
-
-
-    const filteredTasksForCurrentMentee = menteeTasks.filter(task => (task.assignedTo ? task.assignedTo.id : -1) === currentMenteeId);
-    let tasksToRender = filteredTasksForCurrentMentee;
-    if (currentFilter !== 'all') {
-        tasksToRender = filteredTasksForCurrentMentee.filter(task => task.status === currentFilter);
-    }
-
-    let html = '';
-    if (tasksToRender.length === 0 && currentFilter !== 'all') {
-        html = `<p style="text-align:center; margin-top:2rem; color: var(--secondary);">No tasks in this category.</p>`;
-    } else if (currentFilter === 'all') {
-        const statusOrder = [
-            { key: TaskStatus.NOT_STARTED, label: 'Not Started', icon: 'fa-clock' },
-            { key: TaskStatus.IN_PROGRESS, label: 'In Progress', icon: 'fa-spinner' },
-            { key: TaskStatus.COMPLETED, label: 'Completed', icon: 'fa-check-circle' }
-        ];
-        let hasAnyTaskInAllView = false;
-        statusOrder.forEach(statusObj => {
-            const group = filteredTasksForCurrentMentee.filter(task => task.status === statusObj.key);
-            if (group.length > 0) {
-                hasAnyTaskInAllView = true;
-                html += `<div class="all-status-header"><i class="fas ${statusObj.icon}"></i> ${statusObj.label}</div>`;
-                html += group.map(task => createMenteeTaskCard(task)).join('');
+        console.log('Fetching tasks from API...');
+        
+        const response = await fetch('http://mentrifyapis.biruk.tech/api/mentee/tasks', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
             }
         });
-        if (!hasAnyTaskInAllView && filteredTasksForCurrentMentee.length === 0) {
-             html = `<p style="text-align:center; margin-top:2rem; color: var(--secondary);">No tasks assigned to you yet.</p>`;
+
+        console.log('API Response status:', response.status);
+        console.log('API Response headers:', Object.fromEntries(response.headers.entries()));
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            console.error('API Error Response:', errorData);
+            throw new Error(`Failed to fetch tasks: ${response.status} ${response.statusText}`);
         }
-    } else {
-        html = tasksToRender.map(task => createMenteeTaskCard(task)).join('');
-         if (tasksToRender.length === 0) {
-            html = `<p style="text-align:center; margin-top:2rem; color: var(--secondary);">No tasks currently ${currentFilter.replace('-', ' ')}.</p>`;
+
+        const data = await response.json();
+        console.log('Successfully fetched tasks:', data);
+        
+        if (!Array.isArray(data)) {
+            console.error('API returned non-array data:', data);
+            throw new Error('Invalid response format from API');
         }
+        
+        allTasks = data;
+        updateTaskCounts();
+        filterTasks(currentFilter);
+    } catch (error) {
+        console.error('Error fetching tasks:', error);
+        showError(`Failed to load tasks: ${error.message}`);
+        renderTasks([]);
     }
-    tasksList.innerHTML = html;
-    updateFilterCounts(filteredTasksForCurrentMentee);
-    addMenteeTaskEventListeners();
 }
 
-function createMenteeTaskCard(task) {
-    // Simplified action button from your last version
-    let actionBtn = '';
-    if (task.status === TaskStatus.NOT_STARTED) {
-        actionBtn = `<button class="btn btn-primary start-btn" data-id="${task.id}"><i class="fas fa-play"></i> Start</button>`;
-    } else if (task.status === TaskStatus.IN_PROGRESS) {
-        actionBtn = `<button class="btn btn-primary complete-btn" data-id="${task.id}"><i class="fas fa-check"></i> Complete</button>`;
+// Update task counts in filter buttons
+function updateTaskCounts() {
+    const counts = {
+        all: allTasks.length,
+        pending: allTasks.filter(task => task.status === 'pending').length,
+        'in-progress': allTasks.filter(task => task.status === 'in-progress').length,
+        completed: allTasks.filter(task => task.status === 'completed').length
+    };
+
+    filterButtons.forEach(button => {
+        const status = button.dataset.status;
+        const countElement = button.querySelector('.count');
+        if (countElement) {
+            countElement.textContent = counts[status] || 0;
+        }
+    });
+}
+
+// Filter tasks based on status
+function filterTasks(status) {
+    currentFilter = status;
+    const filteredTasks = status === 'all' 
+        ? allTasks 
+        : allTasks.filter(task => task.status === status);
+
+    renderTasks(filteredTasks);
+}
+
+// Render tasks to the DOM
+function renderTasks(tasks) {
+    tasksList.innerHTML = '';
+
+    if (tasks.length === 0) {
+        tasksList.innerHTML = `
+            <div class="no-tasks">
+                <p>No tasks found.</p>
+            </div>
+        `;
+        return;
     }
-    let statusText = '';
-    if (task.status === TaskStatus.NOT_STARTED) {
-        statusText = 'Not Started';
-    } else if (task.status === TaskStatus.IN_PROGRESS) {
-        statusText = 'In Progress';
-    } else if (task.status === TaskStatus.COMPLETED) {
-        statusText = 'Completed';
-    }
-    return `
-        <div class="task-item" data-task-id="${task.id}" data-status="${task.status}">
+
+    tasks.forEach(task => {
+        const taskCard = createTaskCard(task);
+        tasksList.appendChild(taskCard);
+    });
+}
+
+// Create task card element
+function createTaskCard(task) {
+    const taskCard = document.createElement('div');
+    taskCard.className = 'task-item';
+    
+    // Format due date
+    const dueDate = new Date(task.due_date);
+    const formattedDate = dueDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+
+    // Truncate description if it's too long
+    const truncatedDescription = task.description.length > 100 
+        ? task.description.substring(0, 100) + '...' 
+        : task.description;
+
+    // Get mentor (assigner) information
+    const mentor = task.assigner;
+    const mentorName = mentor ? `${mentor.first_name} ${mentor.last_name}` : 'Unknown Mentor';
+    const mentorPhoto = mentor?.photo_url || '../../assets/images/default-avatar.png';
+
+    taskCard.innerHTML = `
             <div class="task-info">
+            <div class="task-header">
                 <h3 class="task-title">${task.title}</h3>
-                <p class="task-description">${task.description.substring(0, 100)}${task.description.length > 100 ? '...' : ''}</p>
+                <span class="task-status status-${task.status}">${formatStatus(task.status)}</span>
+            </div>
+            <p class="task-description">
+                ${truncatedDescription}
+                ${task.description.length > 100 ? '<span class="view-more">Click to view full description</span>' : ''}
+            </p>
             </div>
             <div class="task-meta">
-                <div class="task-due-date"><i class="fas fa-calendar"></i> Due: ${task.dueDate}</div>
-                <span class="task-status status-${task.status}">${statusText}</span>
+            <div class="task-due-date">
+                <i class="fas fa-calendar"></i>
+                ${formattedDate}
             </div>
-            <div class="task-mentor">
-                <img src="${task.assignedBy.avatar}" alt="${task.assignedBy.name}" class="mentor-avatar">
-                <div class="mentor-info">
-                    <h4>${task.assignedBy.name}</h4>
-                    <p>${task.assignedBy.title}</p> <!-- Added back mentor title -->
+        </div>
+        <div class="task-mentee">
+            <div class="mentee-avatar">
+                <img src="${mentorPhoto}" alt="${mentorName}" onerror="this.src='../../assets/images/default-avatar.png'">
                 </div>
+            <div class="mentee-info">
+                <h4>${mentorName}</h4>
+                <p>Mentor</p>
             </div>
-            <div class="task-actions">${actionBtn}</div>
         </div>
+        <div class="task-actions">
+            ${getStatusUpdateButton(task)}
+        </div>
+    `;
+
+    // Add event listeners
+    const descriptionElement = taskCard.querySelector('.task-description');
+    descriptionElement.addEventListener('click', () => showDescriptionModal(task));
+
+    const statusButton = taskCard.querySelector('.status-update-btn');
+    if (statusButton) {
+        statusButton.addEventListener('click', () => updateTaskStatus(task.id, getNextStatus(task.status)));
+    }
+
+    return taskCard;
+}
+
+// Get status update button based on current status
+function getStatusUpdateButton(task) {
+    if (task.status === 'completed') {
+        return '';
+    }
+
+    const nextStatus = getNextStatus(task.status);
+    return `
+        <button class="btn btn-primary status-update-btn">
+            Mark as ${formatStatus(nextStatus)}
+        </button>
     `;
 }
 
-function addMenteeTaskEventListeners() {
-    console.log('addMenteeTaskEventListeners called.');
-
-    // Listeners for Start/Complete buttons (stopPropagation for these)
-    document.querySelectorAll('.start-btn').forEach(btn => {
-        btn.addEventListener('click', function handler(event) {
-            event.stopPropagation(); // Prevent task-item click when button is clicked
-            console.log('>>> CLICK HANDLER: START BUTTON WAS ACTUALLY CLICKED! <<< Element:', this);
-            const id = parseInt(this.getAttribute('data-id'));
-            const task = menteeTasks.find(t => t.id === id);
-            if (task) {
-                task.status = TaskStatus.IN_PROGRESS;
-                renderMenteeTasks();
-            }
-        });
-    });
-    document.querySelectorAll('.complete-btn').forEach(btn => {
-        btn.addEventListener('click', function handler(event) {
-            event.stopPropagation(); // Prevent task-item click when button is clicked
-            console.log('>>> CLICK HANDLER: COMPLETE BUTTON WAS ACTUALLY CLICKED! <<< Element:', this);
-            const id = parseInt(this.getAttribute('data-id'));
-            const task = menteeTasks.find(t => t.id === id);
-            if (task) {
-                task.status = TaskStatus.COMPLETED;
-                renderMenteeTasks();
-            }
-        });
-    });
-
-    // NEW: Listeners for clicking on the task item itself
-    document.querySelectorAll('.task-item').forEach(item => {
-        item.addEventListener('click', function() {
-            const taskId = parseInt(this.getAttribute('data-task-id'));
-            console.log('Task item clicked, ID:', taskId);
-            const task = menteeTasks.find(t => t.id === taskId);
-            if (task) {
-                renderTaskDetails(task);
-            }
-        });
-    });
-
-    console.log('Start button listeners attached to:', document.querySelectorAll('.start-btn').length, 'elements');
-    console.log('Complete button listeners attached to:', document.querySelectorAll('.complete-btn').length, 'elements');
-    console.log('Task item listeners attached to:', document.querySelectorAll('.task-item').length, 'elements');
+// Get next status in the workflow
+function getNextStatus(currentStatus) {
+    switch (currentStatus) {
+        case 'pending':
+            return 'in_progress';
+        case 'in_progress':
+            return 'completed';
+        default:
+            return currentStatus;
+    }
 }
 
+// Format status for display
+function formatStatus(status) {
+    return status.split('-').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+}
 
-function renderTaskDetails(task) {
-    console.log('Rendering details for task:', task);
-    if (!tasksHeaderWrapper || !taskDetailContainer) {
-        console.error('View containers not found!');
-        return;
-    }
-
-    let statusText = '';
-    if (task.status === TaskStatus.NOT_STARTED) statusText = 'Not Started';
-    else if (task.status === TaskStatus.IN_PROGRESS) statusText = 'In Progress';
-    else if (task.status === TaskStatus.COMPLETED) statusText = 'Completed';
-
-    let requirementsHTML = task.requirements && task.requirements.length > 0
-        ? `<ul>${task.requirements.map(req => `<li>${req}</li>`).join('')}</ul>`
-        : '<p>No specific requirements listed.</p>';
-
-    let resourcesHTML = task.resources && task.resources.length > 0
-        ? `<ul>${task.resources.map(res => `<li><a href="${res}" target="_blank" rel="noopener noreferrer">${res}</a></li>`).join('')}</ul>`
-        : '<p>No resources listed.</p>';
-
-    taskDetailContainer.innerHTML = `
-        <button class="btn btn-outline" id="back-to-tasks-btn"><i class="fas fa-arrow-left"></i> Back to Tasks</button>
-        <h2>${task.title}</h2>
-        <p><strong class="detail-label">Status:</strong> <span class="task-status status-${task.status}">${statusText}</span></p>
-        <p><strong class="detail-label">Due Date:</strong> ${task.dueDate}</p>
-
-        <p class="detail-label">Description:</p>
-        <p>${task.description.replace(/\n/g, '<br>')}</p>
-
-        <div class="task-detail-mentor-info">
-            <img src="${task.assignedBy.avatar}" alt="${task.assignedBy.name}" class="mentor-avatar">
-            <div>
-                <h4>Assigned by: ${task.assignedBy.name}</h4>
-                <p>${task.assignedBy.title}</p>
-            </div>
+// Show description modal
+function showDescriptionModal(task) {
+    const modalContent = `
+        <div class="modal-content">
+            <p class="task-description-full">${task.description}</p>
         </div>
-        
-        <p class="detail-label">Requirements:</p>
-        ${requirementsHTML}
-
-        <p class="detail-label">Resources:</p>
-        ${resourcesHTML}
-        
-        <!-- You can add the action buttons here too if needed -->
     `;
-
-    // Add event listener for the new "Back" button
-    document.getElementById('back-to-tasks-btn').addEventListener('click', () => {
-        tasksHeaderWrapper.style.display = 'block';
-        taskDetailContainer.style.display = 'none';
-        taskDetailContainer.innerHTML = ''; // Clear details
-    });
-
-    // Switch views
-    tasksHeaderWrapper.style.display = 'none';
-    taskDetailContainer.style.display = 'block';
+    modalTaskDescription.innerHTML = modalContent;
+    descriptionModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // Prevent background scroll
 }
 
-
-function updateFilterCounts(tasksForCurrentMentee) {
-    const counts = {
-        all: tasksForCurrentMentee.length,
-        [TaskStatus.NOT_STARTED]: tasksForCurrentMentee.filter(t => t.status === TaskStatus.NOT_STARTED).length,
-        [TaskStatus.IN_PROGRESS]: tasksForCurrentMentee.filter(t => t.status === TaskStatus.IN_PROGRESS).length,
-        [TaskStatus.COMPLETED]: tasksForCurrentMentee.filter(t => t.status === TaskStatus.COMPLETED).length
-    };
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        const status = btn.getAttribute('data-status');
-        const countSpan = btn.querySelector('.count');
-        if (countSpan) countSpan.textContent = counts[status] || 0;
-        btn.classList.toggle('active', status === currentFilter);
-    });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOMContentLoaded event fired.');
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            // If already in detail view, switch back to list view before applying filter
-            if (tasksHeaderWrapper && taskDetailContainer && tasksHeaderWrapper.style.display === 'none') {
-                tasksHeaderWrapper.style.display = 'block';
-                taskDetailContainer.style.display = 'none';
-                taskDetailContainer.innerHTML = '';
-            }
-
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            currentFilter = this.getAttribute('data-status');
-            renderMenteeTasks(); // This will re-render the list and hide details
-        });
-    });
-
-    const initialActiveButton = document.querySelector(`.filter-btn[data-status="${currentFilter}"]`);
-    if (initialActiveButton) initialActiveButton.classList.add('active');
-    else {
-        const allButton = document.querySelector(`.filter-btn[data-status="all"]`);
-        if (allButton) allButton.classList.add('active');
+// View mentor profile
+window.viewMentorProfile = function(mentorId) {
+    if (mentorId) {
+        window.location.href = `../mentor_profile/mentor_profile.html?id=${mentorId}`;
+    } else {
+        showError('Mentor information not available');
     }
-    renderMenteeTasks();
-    console.log('Initial renderMenteeTasks complete.');
+};
+
+// Close description modal
+function closeDescriptionModal() {
+    descriptionModal.style.display = 'none';
+    document.body.style.overflow = ''; // Restore background scroll
+}
+
+// Update task status
+async function updateTaskStatus(taskId, newStatus) {
+    try {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
+        const response = await fetch(`http://mentrifyapis.biruk.tech/api/tasks/${taskId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            console.error('API Error Response:', errorData);
+            throw new Error(`Failed to update task status: ${response.status} ${response.statusText}`);
+        }
+
+        // Optionally, you can use the updated task from the response
+        // const updatedTask = await response.json();
+
+        // Update local task data
+        const taskIndex = allTasks.findIndex(task => task.id === taskId);
+        if (taskIndex !== -1) {
+            allTasks[taskIndex].status = newStatus;
+            updateTaskCounts();
+            filterTasks(currentFilter);
+        }
+    } catch (error) {
+        console.error('Error updating task status:', error);
+        showError(`Failed to update task status: ${error.message}`);
+    }
+}
+
+// Show error message
+function showError(message) {
+    // You can implement a proper error notification system here
+    alert(message);
+}
+
+// Ensure modal closes and restores scroll
+window.addEventListener('click', (event) => {
+    if (event.target === descriptionModal) {
+        closeDescriptionModal();
+    }
 });
+
+// Add some CSS styles for the new elements
+const style = document.createElement('style');
+style.textContent = `
+    .task-item {
+        width: 100%;
+        margin-bottom: 1.5rem;
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        padding: 1.5rem;
+        display: grid;
+        grid-template-columns: 1fr auto auto auto;
+        gap: 2rem;
+        align-items: start;
+        transition: var(--transition-smooth);
+        position: relative;
+        overflow: visible;
+    }
+
+    .task-item:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    .task-info {
+        max-width: 500px;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        min-width: 0;
+    }
+
+    .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .task-title {
+        font-size: 1.1rem;
+        color: var(--secondary);
+        font-weight: 600;
+        margin: 0;
+        line-height: 1.4;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .task-description {
+        color: var(--text);
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin: 0;
+        cursor: pointer;
+        transition: color 0.2s ease;
+        padding: 0.5rem 0;
+        max-height: 4.5em;
+        overflow: hidden;
+    }
+
+    .task-description:hover {
+        color: var(--primary);
+    }
+
+    .view-more {
+        color: var(--primary);
+        font-size: 0.9rem;
+        font-style: italic;
+        margin-left: 0.5rem;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+
+    .view-more:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    .task-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        min-width: 150px;
+        flex-shrink: 0;
+    }
+
+    .task-mentee {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        min-width: 200px;
+        flex-shrink: 0;
+    }
+
+    .mentee-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .mentee-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .mentee-info {
+        min-width: 0;
+    }
+
+    .mentee-info h4 {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--secondary);
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .mentee-info p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--text);
+        opacity: 0.8;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .task-due-date {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text);
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    .task-due-date i {
+        color: var(--primary);
+    }
+
+    .task-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    .status-pending {
+        background: #e9ecef;
+        color: #495057;
+    }
+
+    .status-in-progress {
+        background: #cce5ff;
+        color: #004085;
+    }
+
+    .status-completed {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .task-actions {
+        display: flex;
+        gap: 0.75rem;
+        min-width: 160px;
+        justify-content: flex-end;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 1200px) {
+        .task-item {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .task-meta {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .task-mentee {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .task-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .task-info {
+            max-width: 100%;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .task-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .task-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .task-status {
+            align-self: flex-start;
+        }
+
+        .task-meta {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// Add some CSS styles for the modal
+const modalStyle = document.createElement('style');
+modalStyle.textContent = `
+    #descriptionModal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: var(--white);
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        padding: 2rem;
+        position: relative;
+        overflow-y: auto;
+        box-sizing: border-box;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none;  /* IE and Edge */
+    }
+    .modal-content::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+    }
+
+    .task-description-full {
+        color: var(--text);
+        font-size: 1rem;
+        line-height: 1.6;
+        margin: 0;
+        white-space: pre-wrap;
+    }
+
+    @media (max-width: 768px) {
+        .modal-content {
+            width: 95%;
+            padding: 1.5rem;
+        }
+    }
+`;
+document.head.appendChild(modalStyle); 
