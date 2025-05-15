@@ -104,33 +104,6 @@
             padding: 2rem;
         }
 
-        .task-item {
-            width: 100%;
-            margin-bottom: 1.5rem;
-            background: var(--white);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 1.5rem;
-            display: grid;
-            grid-template-columns: 1fr auto auto auto;
-            gap: 2rem;
-            align-items: center;
-            transition: var(--transition-smooth);
-        }
-
-        .task-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .task-item:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--card-hover-shadow);
-        }
-
-        .task-info {
-            max-width: 500px;
-        }
-
         .tasks-header {
             background: var(--white);
             padding: 1.5rem 2rem;
@@ -228,17 +201,139 @@
             box-shadow: 0 4px 12px rgba(26, 188, 156, 0.2);
         }
 
+        .task-item {
+            width: 100%;
+            margin-bottom: 1.5rem;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 2rem;
+            align-items: start;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: visible;
+        }
+
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .task-info {
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            min-width: 0;
+        }
+
         .task-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
 
         .task-title {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--secondary);
             font-weight: 600;
             margin: 0;
+            line-height: 1.4;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-description {
+            color: var(--text);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin: 0;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            padding: 0.5rem 0;
+            max-height: 4.5em;
+            overflow: hidden;
+        }
+
+        .task-description:hover {
+            color: var(--primary);
+        }
+
+        .view-more {
+            color: var(--primary);
+            font-size: 0.9rem;
+            font-style: italic;
+            margin-left: 0.5rem;
+        }
+
+        .task-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            min-width: 150px;
+            flex-shrink: 0;
+        }
+
+        .task-mentee {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 200px;
+            flex-shrink: 0;
+        }
+
+        .mentee-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+            flex-shrink: 0;
+        }
+
+        .mentee-info {
+            min-width: 0;
+        }
+
+        .mentee-info h4 {
+            margin: 0;
+            font-size: 0.95rem;
+            color: var(--secondary);
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mentee-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text);
+            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .task-due-date {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text);
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .task-due-date i {
+            color: var(--primary);
         }
 
         .task-status {
@@ -246,7 +341,7 @@
             border-radius: 20px;
             font-size: 0.85rem;
             font-weight: 500;
-            text-transform: capitalize;
+            white-space: nowrap;
         }
 
         .status-not-started {
@@ -264,81 +359,45 @@
             color: #155724;
         }
 
-        .task-description {
-            color: var(--text);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin: 0;
-        }
-
-        .task-meta {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .task-mentee {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .mentee-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .mentee-info h4 {
-            margin: 0;
-            font-size: 0.95rem;
-            color: var(--secondary);
-        }
-
-        .mentee-info p {
-            margin: 0;
-            font-size: 0.85rem;
-            color: var(--text);
-            opacity: 0.8;
-        }
-
-        .task-due-date {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text);
-            font-size: 0.9rem;
-        }
-
-        .task-due-date i {
-            color: var(--primary);
-        }
-
         .task-actions {
             display: flex;
             gap: 0.75rem;
-            margin-top: auto;
+            min-width: 160px;
+            justify-content: flex-end;
+            flex-shrink: 0;
         }
 
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--primary);
+        .read-more-btn {
+            background: none;
+            border: none;
             color: var(--primary);
+            font-size: 0.9rem;
+            padding: 0;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s ease;
+            align-self: flex-start;
         }
 
-        .btn-outline:hover {
-            background: var(--primary);
-            color: var(--white);
+        .read-more-btn:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
         }
 
-        .btn-danger {
-            background: #dc3545;
-            color: var(--white);
+        .read-more-btn i {
+            transition: transform 0.3s ease;
+            font-size: 0.8rem;
         }
 
-        .btn-danger:hover {
-            background: #c82333;
+        .read-more-btn:hover i {
+            transform: translateY(2px);
+        }
+
+        .read-more-btn .read-more-text {
+            transition: color 0.2s ease;
         }
 
         /* Modal Styles */
@@ -433,14 +492,6 @@
                 width: 100%;
             }
 
-            .task-due-date {
-                width: auto;
-            }
-
-            .task-status {
-                width: auto;
-            }
-
             .task-mentee {
                 width: 100%;
                 justify-content: flex-start;
@@ -449,6 +500,10 @@
             .task-actions {
                 width: 100%;
                 justify-content: flex-start;
+            }
+
+            .task-info {
+                max-width: 100%;
             }
         }
 
@@ -491,6 +546,81 @@
             .btn {
                 width: 100%;
                 justify-content: center;
+            }
+
+            .task-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .task-status {
+                align-self: flex-start;
+            }
+
+            .task-meta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .task-description {
+                max-width: 100%;
+            }
+
+            .tasks-header {
+                padding: 1rem;
+            }
+
+            .tasks-header-content {
+                gap: 1rem;
+            }
+
+            .filter-buttons {
+                padding: 0;
+            }
+
+            .filter-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        .description-modal {
+            max-width: 800px;
+            width: 90%;
+        }
+
+        .modal-body {
+            padding: 1rem 0;
+        }
+
+        .modal-task-title {
+            font-size: 1.25rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .modal-task-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 1rem;
+            background: var(--background);
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .description-modal {
+                width: 95%;
+                margin: 1rem;
+            }
+
+            .modal-task-description {
+                max-height: 60vh;
             }
         }
     </style>
@@ -557,10 +687,7 @@
                     <div class="tasks-header-content">
                         <div class="tasks-header-top">
                             <h1 class="tasks-title">Manage Tasks</h1>
-                            <button class="btn btn-primary" onclick="openNewTaskModal()">
-                                <i class="fas fa-plus"></i>
-                                Assign New Task
-                            </button>
+                            <button class="btn btn-primary" id="openNewTaskBtn">Assign New Task</button>
                         </div>
                         <div class="filter-buttons">
                             <button class="filter-btn active" data-status="all">
@@ -588,7 +715,7 @@
                 </div>
 
                 <div class="tasks-list">
-                    <!-- Task cards will be dynamically rendered here -->
+                    <!-- Intentionally left empty. Content is rendered by JS. -->
                 </div>
             </div>
         </main>
@@ -599,39 +726,36 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title">Assign/Edit Task</h2>
-                <button class="close-modal" onclick="closeNewTaskModal()">&times;</button>
+                <button class="close-modal" id="closeNewTaskModalBtn">&times;</button>
             </div>
             <form id="newTaskForm" onsubmit="handleNewTaskSubmit(event)">
-                <div class="form-group">
+                <div class="form-group" id="menteeGroup">
                     <label class="form-label" for="mentee">Select Mentee</label>
-                    <select class="form-select" id="mentee" required>
+                    <select class="form-select" id="mentee" name="mentee">
                         <option value="">Choose a mentee...</option>
-                        <option value="1">Sarah Johnson</option>
-                        <option value="2">Michael Brown</option>
-                        <option value="3">Emily Davis</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="taskTitle">Task Title</label>
-                    <input type="text" class="form-input" id="taskTitle" required>
+                    <input type="text" class="form-input" id="taskTitle" name="taskTitle" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="taskDescription">Task Description</label>
-                    <textarea class="form-textarea" id="taskDescription" required></textarea>
+                    <textarea class="form-textarea" id="taskDescription" name="taskDescription" required></textarea>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="dueDate">Due Date</label>
-                    <input type="date" class="form-input" id="dueDate" required>
+                    <input type="date" class="form-input" id="dueDate" name="dueDate" required>
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="resource">Attach Resource (optional)</label>
-                    <input type="url" class="form-input" id="resource" placeholder="Paste a link to a file or resource">
+                <div class="form-group" id="statusGroup">
+                    <label class="form-label" for="taskStatus">Status</label>
+                    <select class="form-select" id="taskStatus" name="taskStatus">
+                        <option value="pending">Pending</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="comments">Comments (optional)</label>
-                    <textarea class="form-textarea" id="comments" placeholder="Add any comments for the mentee"></textarea>
-                </div>
-                <input type="hidden" id="editTaskId">
+                <input type="hidden" id="editTaskId" name="editTaskId">
                 <div class="form-actions">
                     <button type="button" class="btn btn-outline" onclick="closeNewTaskModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Task</button>
@@ -640,264 +764,24 @@
         </div>
     </div>
 
-    <script>
-        // Sample tasks data
-        const tasks = [
-            {
-                id: 1,
-                title: "Build a REST API",
-                description: "Create a RESTful API using Node.js and Express. Implement CRUD operations for a todo list application.",
-                status: "in-progress",
-                dueDate: "Mar 15, 2024",
-                mentee: {
-                    id: 1,
-                    name: "Sarah Johnson",
-                    title: "Web Development",
-                    avatar: "../../assets/images/mentee-avatar.jpg"
-                }
-            },
-            {
-                id: 2,
-                title: "Frontend Implementation",
-                description: "Implement the frontend for the todo list application using React. Include state management and API integration.",
-                status: "completed",
-                dueDate: "Mar 20, 2024",
-                mentee: {
-                    id: 2,
-                    name: "Michael Brown",
-                    title: "Frontend Development",
-                    avatar: "../../assets/images/mentee-avatar.jpg"
-                }
-            },
-            {
-                id: 3,
-                title: "Database Design",
-                description: "Design a database schema for an e-commerce platform. Include tables for users, products, orders, and reviews.",
-                status: "completed",
-                dueDate: "Mar 10, 2024",
-                mentee: {
-                    id: 3,
-                    name: "Emily Davis",
-                    title: "Database Design",
-                    avatar: "../../assets/images/mentee-avatar.jpg"
-                }
-            }
-        ];
+    <!-- Description View Modal -->
+    <div class="modal" id="descriptionModal">
+        <div class="modal-content description-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Task Description</h2>
+                <button class="close-modal" id="closeDescriptionModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3 id="modalTaskTitle" class="modal-task-title"></h3>
+                <div id="modalTaskDescription" class="modal-task-description"></div>
+            </div>
+        </div>
+    </div>
 
-        // Function to create task card HTML
-        function createTaskCard(task) {
-            const statusClass = `status-${task.status}`;
-            const statusText = task.status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-            
-            // Resource and comments display
-            let resourceHtml = '';
-            if (task.resource) {
-                resourceHtml = `<div class='task-resource' style='margin-top:0.5rem;'><i class='fas fa-paperclip'></i> <a href='${task.resource}' target='_blank' rel='noopener'>Resource</a></div>`;
-            }
-            let commentsHtml = '';
-            if (task.comments) {
-                commentsHtml = `<div class='task-comments' style='margin-top:0.5rem;'><i class='fas fa-comment'></i> ${task.comments}</div>`;
-            }
-
-            let actionButtons = '';
-            if (task.status === 'not-started' || task.status === 'in-progress') {
-                actionButtons = `
-                    <button class="btn btn-outline" onclick="editTask(${task.id})">
-                        <i class="fas fa-edit"></i> Edit
-                    </button>
-                `;
-            } else if (task.status === 'completed') {
-                actionButtons = `
-                    <button class="btn btn-outline" onclick="viewDetails(${task.id})">
-                        <i class="fas fa-eye"></i> Details
-                    </button>
-                    <button class="btn btn-danger" onclick="deleteTask(${task.id})">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
-                `;
-            }
-
-            return `
-                <div class="task-item">
-                    <div class="task-info">
-                        <h3 class="task-title">${task.title}</h3>
-                        <p class="task-description">${task.description}</p>
-                        ${resourceHtml}
-                        ${commentsHtml}
-                    </div>
-                    <div class="task-meta">
-                        <div class="task-due-date">
-                            <i class="fas fa-calendar"></i>
-                            Due: ${task.dueDate}
-                        </div>
-                        <span class="task-status ${statusClass}">${statusText}</span>
-                    </div>
-                    <div class="task-mentee">
-                        <img src="${task.mentee.avatar}" alt="Mentee" class="mentee-avatar">
-                        <div class="mentee-info">
-                            <h4>${task.mentee.name}</h4>
-                            <p>${task.mentee.title}</p>
-                        </div>
-                    </div>
-                    <div class="task-actions">
-                        ${actionButtons}
-                    </div>
-                </div>
-            `;
-        }
-
-        // Function to render all tasks
-        function renderTasks() {
-            const tasksList = document.querySelector('.tasks-list');
-            tasksList.innerHTML = tasks.map(task => createTaskCard(task)).join('');
-        }
-
-        // Modal functions
-        function openNewTaskModal() {
-            document.getElementById('newTaskModal').style.display = 'flex';
-        }
-
-        function closeNewTaskModal() {
-            document.getElementById('newTaskModal').style.display = 'none';
-        }
-
-        // Task action functions
-        function handleNewTaskSubmit(event) {
-            event.preventDefault();
-            const menteeId = document.getElementById('mentee').value;
-            const title = document.getElementById('taskTitle').value;
-            const description = document.getElementById('taskDescription').value;
-            const dueDate = document.getElementById('dueDate').value;
-            const resource = document.getElementById('resource').value;
-            const comments = document.getElementById('comments').value;
-            const editTaskId = document.getElementById('editTaskId').value;
-
-            // Create new task object
-            const newTask = {
-                id: editTaskId ? editTaskId : tasks.length + 1,
-                title,
-                description,
-                status: 'not-started',
-                dueDate: new Date(dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                mentee: {
-                    id: menteeId,
-                    name: document.getElementById('mentee').options[document.getElementById('mentee').selectedIndex].text,
-                    title: 'Web Development',
-                    avatar: '../../assets/images/mentee-avatar.jpg'
-                },
-                resource,
-                comments
-            };
-
-            if (editTaskId) {
-                const index = tasks.findIndex(t => t.id === parseInt(editTaskId));
-                if (index !== -1) {
-                    tasks[index] = newTask;
-                }
-            } else {
-                tasks.push(newTask);
-            }
-            renderTasks();
-            closeNewTaskModal();
-            event.target.reset();
-        }
-
-        function startTask(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                task.status = 'in-progress';
-                renderTasks();
-            }
-        }
-
-        function markAsCompleted(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                task.status = 'completed';
-                renderTasks();
-            }
-        }
-
-        function editTask(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                document.getElementById('mentee').value = task.mentee.id;
-                document.getElementById('taskTitle').value = task.title;
-                document.getElementById('taskDescription').value = task.description;
-                document.getElementById('dueDate').value = task.dueDate.split(', ').join('T');
-                document.getElementById('resource').value = task.resource;
-                document.getElementById('comments').value = task.comments;
-                document.getElementById('editTaskId').value = task.id;
-                openNewTaskModal();
-            }
-        }
-
-        function viewDetails(taskId) {
-            console.log(`Viewing details for task ${taskId}`);
-            // Implement view details functionality
-        }
-
-        function deleteTask(taskId) {
-            if (confirm('Are you sure you want to delete this task?')) {
-                const index = tasks.findIndex(t => t.id === taskId);
-                if (index !== -1) {
-                    tasks.splice(index, 1);
-                    renderTasks();
-                }
-            }
-        }
-
-        // Add these functions to handle filtering
-        function updateFilterButtons() {
-            const counts = {
-                all: tasks.length,
-                'not-started': tasks.filter(t => t.status === 'not-started').length,
-                'in-progress': tasks.filter(t => t.status === 'in-progress').length,
-                'completed': tasks.filter(t => t.status === 'completed').length
-            };
-
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                const status = btn.getAttribute('data-status');
-                const countSpan = btn.querySelector('.count');
-                if (countSpan) {
-                    countSpan.textContent = counts[status];
-                }
-            });
-        }
-
-        function filterTasks(status) {
-            const filteredTasks = status === 'all' 
-                ? tasks 
-                : tasks.filter(task => task.status === status);
-
-            const tasksList = document.querySelector('.tasks-list');
-            tasksList.innerHTML = filteredTasks.map(task => createTaskCard(task)).join('');
-
-            // Update active button
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.getAttribute('data-status') === status);
-            });
-        }
-
-        // Add event listeners for filter buttons
-        document.addEventListener('DOMContentLoaded', () => {
-            renderTasks();
-            updateFilterButtons();
-
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    // Remove active class from all buttons
-                    document.querySelectorAll('.filter-btn').forEach(b => {
-                        b.classList.remove('active');
-                    });
-                    // Add active class to clicked button
-                    e.currentTarget.classList.add('active');
-                    const status = e.currentTarget.getAttribute('data-status');
-                    filterTasks(status);
-                });
-            });
-        });
-    </script>
     <script src="../../js/tasks/mentor_task/mentor_task.js"></script>
+    <script>
+        document.getElementById('closeNewTaskModalBtn').addEventListener('click', closeNewTaskModal);
+        document.getElementById('closeDescriptionModalBtn').addEventListener('click', closeDescriptionModal);
+    </script>
 </body>
 </html> 
