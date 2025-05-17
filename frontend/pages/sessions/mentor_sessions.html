@@ -243,6 +243,95 @@
                 left: 0;
             }
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow-y: auto; /* Enable vertical scrolling for the modal background */
+            padding: 20px; /* Add padding to prevent content from touching screen edges */
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: var(--white);
+            margin: 20px auto; /* Changed from 5% to fixed pixels */
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            max-height: calc(100vh - 40px); /* Maximum height accounting for padding */
+            overflow-y: auto; /* Enable scrolling for modal content */
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            position: sticky; /* Keep header visible while scrolling */
+            top: 0;
+            background-color: var(--white);
+            padding-bottom: 1rem;
+            z-index: 1;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: var(--primary);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+            position: sticky; /* Keep actions visible while scrolling */
+            bottom: 0;
+            background-color: var(--white);
+            padding-top: 1rem;
+            z-index: 1;
+        }
     </style>
 </head>
 <body>
@@ -324,76 +413,72 @@
                     </div>
                 </div>
 
-                <div class="sessions-grid">
-                    <div class="session-card">
-                        <div class="session-header">
-                            <!-- For mentor, avatar would be mentee's -->
-                            <img src="../../assets/images/mentee-avatar.jpg" alt="Mentee" class="session-avatar">
-                            <div class="session-info">
-                                <h3>Sarah Johnson (Mentee)</h3>
-                                <p>Career Development</p>
-                            </div>
-                        </div>
-                        <div class="session-details">
-                            <div class="detail-item"><i class="fas fa-calendar"></i><span>Mar 15, 2024</span></div>
-                            <div class="detail-item"><i class="fas fa-clock"></i><span>10:00 AM</span></div>
-                            <div class="detail-item"><i class="fas fa-video"></i><span>Video Call</span></div>
-                        </div>
-                        <div class="session-right">
-                            <div class="session-status status-upcoming">Upcoming</div>
-                            <div class="session-actions">
-                                <button class="btn btn-primary"><i class="fas fa-video"></i>Join</button>
-                                <button class="btn btn-outline"><i class="fas fa-edit"></i>Reschedule</button>
-                                <button class="btn btn-outline"><i class="fas fa-sticky-note"></i>Notes</button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="sessions-grid" id="sessionsGrid">
+                    <!-- Sessions will be dynamically loaded here -->
+                </div>
 
-                    <div class="session-card">
-                        <div class="session-header">
-                            <img src="../../assets/images/mentee-avatar.jpg" alt="Mentee" class="session-avatar">
-                            <div class="session-info">
-                                <h3>Michael Brown (Mentee)</h3>
-                                <p>Leadership Skills</p>
-                            </div>
-                        </div>
-                        <div class="session-details">
-                            <div class="detail-item"><i class="fas fa-calendar"></i><span>Mar 14, 2024</span></div>
-                            <div class="detail-item"><i class="fas fa-clock"></i><span>2:00 PM</span></div>
-                            <div class="detail-item"><i class="fas fa-video"></i><span>Video Call</span></div>
-                        </div>
-                        <div class="session-right">
-                            <div class="session-status status-completed">Completed</div>
-                            <div class="session-actions">
-                                <button class="btn btn-outline"><i class="fas fa-sticky-note"></i>Notes</button>
-                                <!-- No feedback from mentor's side directly on card here -->
-                            </div>
-                        </div>
-                    </div>
-                    <div class="session-card">
-                        <div class="session-header">
-                            <img src="../../assets/images/mentee-avatar.jpg" alt="Mentee" class="session-avatar">
-                            <div class="session-info">
-                                <h3>Emily Davis (Mentee)</h3>
-                                <p>Technical Skills</p>
-                            </div>
-                        </div>
-                        <div class="session-details">
-                            <div class="detail-item"><i class="fas fa-calendar"></i><span>Mar 13, 2024</span></div>
-                            <div class="detail-item"><i class="fas fa-clock"></i><span>11:00 AM</span></div>
-                            <div class="detail-item"><i class="fas fa-video"></i><span>Video Call</span></div>
-                        </div>
-                        <div class="session-right">
-                            <div class="session-status status-cancelled">Cancelled</div>
-                            <div class="session-actions">
-                                <button class="btn btn-outline"><i class="fas fa-edit"></i>Reschedule</button>
-                                <button class="btn btn-outline"><i class="fas fa-sticky-note"></i>Notes</button>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Empty State Template -->
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <i class="fas fa-calendar-times"></i>
+                    <h3>No Sessions Found</h3>
+                    <p>You don't have any sessions scheduled yet.</p>
+                    <button class="btn btn-primary" onclick="openModal()">
+                        <i class="fas fa-plus"></i>
+                        Schedule Your First Session
+                    </button>
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Session Creation Modal -->
+    <div id="createSessionModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Schedule New Session</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="createSessionForm">
+                <div class="form-group">
+                    <label for="mentorship">Select Mentee</label>
+                    <select id="mentorship" name="mentorship_id" required>
+                        <option value="">Select a mentee</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="title">Session Title</label>
+                    <input type="text" id="title" name="title" required placeholder="e.g., Career Development Discussion">
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" required placeholder="Describe the session agenda..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="scheduled_at">Date and Time</label>
+                    <input type="datetime-local" id="scheduled_at" name="scheduled_at" required>
+                </div>
+                <div class="form-group">
+                    <label for="duration_minutes">Duration (minutes)</label>
+                    <input type="number" id="duration_minutes" name="duration_minutes" required min="15" max="180" value="60">
+                </div>
+                <div class="form-group">
+                    <label for="session_type">Session Type</label>
+                    <select id="session_type" name="session_type" required>
+                        <option value="Video Call">Video Call</option>
+                        <option value="Audio Call">Audio Call</option>
+                        <option value="In Person">In Person</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="join_url">Meeting Link (for video/audio calls)</label>
+                    <input type="url" id="join_url" name="join_url" placeholder="https://meet.example.com/session123">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Schedule Session</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script src="../../js/sessions/sessions.js"></script>
