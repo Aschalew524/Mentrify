@@ -291,6 +291,487 @@
                 ]
             }
         },
+        "/api/conversations": {
+            "get": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Get user's conversations",
+                "description": "Retrieves all conversations for the authenticated user",
+                "operationId": "getConversations",
+                "responses": {
+                    "200": {
+                        "description": "Conversations retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Conversations retrieved successfully"
+                                        },
+                                        "conversations": {
+                                            "type": "array",
+                                            "items": {
+                                                "allOf": [
+                                                    {
+                                                        "$ref": "#/components/schemas/Conversation"
+                                                    },
+                                                    {
+                                                        "properties": {
+                                                            "unread_count": {
+                                                                "type": "integer",
+                                                                "example": 3
+                                                            },
+                                                            "other_participant": {
+                                                                "$ref": "#/components/schemas/User"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Create a new conversation",
+                "description": "Creates a new conversation between mentor and mentee",
+                "operationId": "createConversation",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "mentorship_id"
+                                ],
+                                "properties": {
+                                    "mentorship_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Let's discuss your goals"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Conversation created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Conversation created successfully"
+                                        },
+                                        "conversation": {
+                                            "$ref": "#/components/schemas/Conversation"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error"
+                    },
+                    "403": {
+                        "description": "Unauthorized to create conversation for this mentorship"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/conversations/{id}": {
+            "get": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Get conversation details",
+                "description": "Retrieves details of a specific conversation",
+                "operationId": "getConversation",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Conversation ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Conversation retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Conversation retrieved successfully"
+                                        },
+                                        "conversation": {
+                                            "$ref": "#/components/schemas/Conversation"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Conversation not found"
+                    },
+                    "403": {
+                        "description": "Unauthorized to access this conversation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/conversations/{id}/messages": {
+            "get": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Get conversation messages",
+                "description": "Retrieves messages for a specific conversation with pagination",
+                "operationId": "getConversationMessages",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Conversation ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of messages per page",
+                        "schema": {
+                            "type": "integer",
+                            "default": 50,
+                            "maximum": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Messages retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Messages retrieved successfully"
+                                        },
+                                        "messages": {
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Message"
+                                                    }
+                                                },
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 50
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 234
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Conversation not found"
+                    },
+                    "403": {
+                        "description": "Unauthorized to access this conversation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Send a message",
+                "description": "Sends a new message in a conversation",
+                "operationId": "sendMessage",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Conversation ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "content"
+                                ],
+                                "properties": {
+                                    "content": {
+                                        "type": "string",
+                                        "example": "Hello! How are you doing?"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "default": "text",
+                                        "enum": [
+                                            "text",
+                                            "image",
+                                            "file"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Message sent successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Message sent successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error"
+                    },
+                    "403": {
+                        "description": "Unauthorized to send message in this conversation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/messages/{id}/read": {
+            "patch": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Mark message as read",
+                "description": "Marks a specific message as read",
+                "operationId": "markMessageRead",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Message ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Message marked as read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Message marked as read"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Message not found"
+                    },
+                    "403": {
+                        "description": "Unauthorized to mark this message as read"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/conversations/{id}/read": {
+            "patch": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Mark all messages as read",
+                "description": "Marks all unread messages in a conversation as read",
+                "operationId": "markConversationRead",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Conversation ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "All messages marked as read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "All messages marked as read"
+                                        },
+                                        "marked_count": {
+                                            "type": "integer",
+                                            "example": 5
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Conversation not found"
+                    },
+                    "403": {
+                        "description": "Unauthorized to access this conversation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/mentee/dashboard": {
             "get": {
                 "tags": [
@@ -341,6 +822,12 @@
                                                         "type": "object"
                                                     }
                                                 ]
+                                            }
+                                        },
+                                        "recent_conversations": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Conversation"
                                             }
                                         }
                                     },
@@ -497,6 +984,12 @@
                                             "type": "array",
                                             "items": {
                                                 "$ref": "#/components/schemas/Feedback"
+                                            }
+                                        },
+                                        "recent_conversations": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Conversation"
                                             }
                                         }
                                     },
@@ -2030,6 +2523,76 @@
                 },
                 "type": "object"
             },
+            "Conversation": {
+                "title": "Conversation",
+                "description": "Chat conversation between mentor and mentee",
+                "properties": {
+                    "id": {
+                        "description": "Conversation ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "mentorship_id": {
+                        "description": "ID of the associated mentorship",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "mentor_id": {
+                        "description": "ID of the mentor",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "mentee_id": {
+                        "description": "ID of the mentee",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "title": {
+                        "description": "Optional conversation title",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "last_message_at": {
+                        "description": "Timestamp of last message",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "is_active": {
+                        "description": "Whether the conversation is active",
+                        "type": "boolean"
+                    },
+                    "created_at": {
+                        "description": "Timestamp of conversation creation",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Timestamp of last conversation update",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "mentorship": {
+                        "$ref": "#/components/schemas/Mentorship"
+                    },
+                    "mentor": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "mentee": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "messages": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Message"
+                        }
+                    },
+                    "last_message": {
+                        "$ref": "#/components/schemas/Message"
+                    }
+                },
+                "type": "object"
+            },
             "Feedback": {
                 "title": "Feedback",
                 "description": "Feedback model for sessions",
@@ -2134,6 +2697,79 @@
                 },
                 "type": "object"
             },
+            "Message": {
+                "title": "Message",
+                "description": "Chat message model",
+                "properties": {
+                    "id": {
+                        "description": "Message ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "conversation_id": {
+                        "description": "ID of the conversation",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "sender_id": {
+                        "description": "ID of the message sender",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "content": {
+                        "description": "Message content",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "Type of message",
+                        "type": "string",
+                        "enum": [
+                            "text",
+                            "image",
+                            "file",
+                            "system"
+                        ]
+                    },
+                    "read_at": {
+                        "description": "Timestamp when message was read",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "is_edited": {
+                        "description": "Whether the message has been edited",
+                        "type": "boolean"
+                    },
+                    "edited_at": {
+                        "description": "Timestamp when message was last edited",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "metadata": {
+                        "description": "Additional message metadata (for files, images, etc.)",
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "description": "Timestamp of message creation",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Timestamp of last message update",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "conversation": {
+                        "$ref": "#/components/schemas/Conversation"
+                    },
+                    "sender": {
+                        "$ref": "#/components/schemas/User"
+                    }
+                },
+                "type": "object"
+            },
             "Session": {
                 "title": "Session",
                 "description": "Mentoring session model",
@@ -2223,6 +2859,10 @@
         }
     },
     "tags": [
+        {
+            "name": "Chat",
+            "description": "API Endpoints for Chat functionality"
+        },
         {
             "name": "Mentors",
             "description": "API Endpoints for Mentor Operations"
