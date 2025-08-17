@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Conversation;
 use App\Models\Feedback;
 use App\Models\Mentorship;
 use App\Models\Session;
@@ -44,6 +45,11 @@ class MentorController extends Controller // Assuming class name is changed from
      *                 property="recent_feedback",
      *                 type="array",
      *                 @OA\Items(ref="#/components/schemas/Feedback")
+     *             ),
+     *             @OA\Property(
+     *                 property="recent_conversations",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Conversation")
      *             )
      *         )
      *     ),
@@ -92,12 +98,25 @@ class MentorController extends Controller // Assuming class name is changed from
             ->limit(10)
             ->get();
         
+        // Get recent conversations with mentees
+        $recentConversations = Conversation::with(['mentee:id,first_name,last_name,photo_url'])
+            ->where('mentor_id', $user->id)
+            ->where('is_active', true)
+            ->orderBy('last_message_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($conversation) use ($user) {
+                $conversation->unread_count = $conversation->getUnreadCountForUser($user->id);
+                return $conversation;
+            });
+        
         return response()->json([
             'active_mentees_count' => $activeMenteesCount,
             'average_rating' => round($averageRating, 1),
             'hours_mentored' => $hoursMentored,
             'upcoming_sessions' => $upcomingSessions,
             'recent_feedback' => $recentFeedback,
+            'recent_conversations' => $recentConversations,
         ]);
     }
 

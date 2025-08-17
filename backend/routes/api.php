@@ -8,6 +8,10 @@ use App\Http\Controllers\API\MentorController;
 use App\Http\Controllers\API\MentorshipController; // Import MentorshipController
 use App\Http\Controllers\API\TaskController; // Import TaskController
 use App\Http\Controllers\API\SessionController; // Import SessionController
+use App\Http\Controllers\API\ChatController;
+use App\Http\Controllers\API\MenteeDashboardController;
+use App\Http\Controllers\API\MentorDashboardController;
+
 
 Route::post('/register', [AuthController::class, 'register']); 
 Route::post('/login', [AuthController::class, 'login']);     
@@ -61,4 +65,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // User details endpoints
     Route::get('/mentee/details/{id}', [MenteeController::class, 'getUserDetails']);
     Route::get('/mentor/details/{id}', [MentorController::class, 'getUserDetails']);
+    
+    // Chat endpoints
+    Route::apiResource('conversations', ChatController::class)->only(['index', 'store', 'show']);
+    Route::get('/conversations/{id}/messages', [ChatController::class, 'getMessages']);
+    Route::post('/conversations/{id}/messages', [ChatController::class, 'sendMessage']);
+    Route::patch('/conversations/{id}/read', [ChatController::class, 'markConversationAsRead']);
+    Route::patch('/messages/{id}/read', [ChatController::class, 'markAsRead']);
 });
