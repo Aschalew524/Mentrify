@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Conversation - Mentrify</title>
+	<link rel="stylesheet" href="../../../css/global/global.css">
+	<link rel="stylesheet" href="../../../css/dashboard/mentee_dashboard.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+	<style>
+		.chat-page {
+			display: grid;
+			grid-template-rows: auto 1fr auto;
+			height: 100vh;
+			background: linear-gradient(180deg,#f7f9fc 0%, #eef2f7 100%);
+		}
+		.chat-header {
+			position: sticky; top: 0; z-index: 2;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 14px 18px;
+			background: #fff;
+			box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+		}
+		.chat-header .avatar {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			object-fit: cover;
+			border: 2px solid var(--primary);
+		}
+		.chat-messages { padding: 20px 18px; overflow-y: auto; }
+		.message-bubble { max-width: 64%; margin-bottom: 12px; padding: 10px 12px; border-radius: 16px; background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+		.message-bubble.sent { margin-left: auto; background: linear-gradient(180deg, rgba(45,136,255,0.10) 0%, rgba(45,136,255,0.05) 100%); border: 1px solid rgba(45,136,255,0.15); }
+		.message-bubble .message-time { display: block; font-size: 0.75rem; color: var(--secondary); margin-top: 6px; }
+		.chat-input { position: sticky; bottom: 0; z-index: 2; display: flex; gap: 10px; padding: 12px; background: #fff; box-shadow: 0 -4px 24px rgba(0,0,0,0.06); }
+		.chat-input input { flex: 1; padding: 10px 12px; border: 1px solid var(--gray); border-radius: 10px; }
+		.chat-input button { padding: 10px 16px; border-radius: 10px; }
+		.back-link { color: var(--primary); text-decoration: none; margin-right: 8px; }
+		.header-info h3 { margin: 0; font-size: 1rem; }
+		.header-info small { color: var(--secondary); }
+		.empty-state { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--secondary); opacity: 0.9; }
+	</style>
+</head>
+<body>
+	<div class="chat-page">
+		<div class="chat-header">
+			<a href="./mentee_messages.html" class="back-link"><i class="fas fa-arrow-left"></i></a>
+			<img id="otherAvatar" class="avatar" src="../../../assets/images/default-avatar.jpg" alt="User">
+			<div class="header-info">
+				<h3 id="otherName">Loading...</h3>
+				<small id="otherTitle"></small>
+			</div>
+		</div>
+		<div class="chat-messages" id="chatMessages">
+			<div class="empty-state"><i class="fas fa-comments"></i>&nbsp; Loading conversation...</div>
+		</div>
+		<div class="chat-input">
+			<input id="messageInput" type="text" placeholder="Type your message...">
+			<button id="sendButton" class="btn btn-primary">Send</button>
+		</div>
+	</div>
+	<script type="module">
+		import { sendMessage, markConversationAsRead, fetchConversations, getOrCreateConversation, fetchConversationDetails, fetchConversationMessages } from '../../../js/messages/conversations.js';
+		const DEFAULT_AVATAR_URL = '../../../assets/images/default-avatar.jpg';
+		const url = new URL(window.location.href);
+		const mentorshipId = url.searchParams.get('mentorship');
+		let conversationId = url.searchParams.get('conversation');
+		let isRenderedOnce = false;
+		let refreshTimer = null;
+
+		async function ensureConversation() {
+			if (conversationId) return conversationId;
+			if (!mentorshipId) throw new Error('No conversation or mentorship specified');
+			try {
+				const convo = await getOrCreateConversation(Number(mentorshipId), 'Mentorship Chat');
+				conversationId = convo?.id;
+				return conversationId;
+			} catch (err) {
+				const container = document.getElementById('chatMessages');
+				container.innerHTML = `<div class="empty-state"><i class=\"fas fa-triangle-exclamation\"></i>&nbsp; ${err?.message || 'Could not create conversation.'}</div>`;
+				throw err;
+			}
+		}
+
+		async function renderHeader(other) {
+			document.getElementById('otherAvatar').src = other.photo_url || DEFAULT_AVATAR_URL;
+			document.getElementById('otherAvatar').onerror = () => { document.getElementById('otherAvatar').src = DEFAULT_AVATAR_URL; };
+			document.getElementById('otherName').textContent = `${other.first_name || ''} ${other.last_name || ''}`.trim() || 'Conversation';
+			document.getElementById('otherTitle').textContent = other.job_title || '';
+		}
+
+		async function renderChat() {
+			try {
+				const id = await ensureConversation();
+				let other = {};
+				try {
+					const details = await fetchConversationDetails(id);
+					const conv = details.conversation || details;
+					other = conv.other_participant || conv.mentor || conv.mentee || {};
+					await renderHeader(other);
+				} catch (_) {
+					try {
+						const list = await fetchConversations();
+						const conv = (list.conversations || []).find(c => String(c.id) === String(id));
+						if (conv) {
+							other = conv.other_participant || conv.mentor || conv.mentee || {};
+							await renderHeader(other);
+						}
+					} catch (_) {}
+				}
+				let messages = [];
+				try {
+					const messagesResp = await fetchConversationMessages(id);
+					messages = messagesResp?.messages?.data || messagesResp?.messages || messagesResp?.data || [];
+				} catch (_) {}
+				// Fallback to conversations list if messages are unavailable/empty
+				if (!Array.isArray(messages) || messages.length === 0) {
+					try {
+						const listAgain = await fetchConversations();
+						const convAgain = (listAgain.conversations || []).find(c => String(c.id) === String(id));
+						if (convAgain && Array.isArray(convAgain.messages)) {
+							messages = convAgain.messages;
+						}
+					} catch (_) {}
+				}
+				const container = document.getElementById('chatMessages');
+				if (!Array.isArray(messages) || messages.length === 0) {
+					container.innerHTML = '<div class="empty-state"><i class="fas fa-comments"></i>&nbsp; No messages yet. Say hello!</div>';
+				} else {
+					container.innerHTML = messages.map(msg => `
+						<div class="message-bubble ${other && msg.sender_id === other.id ? 'received' : 'sent'}">
+							<p>${msg.content}</p>
+							<span class="message-time">${new Date(msg.created_at).toLocaleTimeString()}</span>
+						</div>
+					`).join('');
+					container.scrollTop = container.scrollHeight;
+				}
+				await markConversationAsRead(id);
+				isRenderedOnce = true;
+			} catch (err) {
+				const container = document.getElementById('chatMessages');
+				container.innerHTML = '<div class="empty-state"><i class="fas fa-triangle-exclamation"></i>&nbsp; Unable to load conversation. Please go back and try selecting the mentor again.</div>';
+			}
+		}
+
+		function setupSend() {
+			const input = document.getElementById('messageInput');
+			const button = document.getElementById('sendButton');
+			button.addEventListener('click', async () => {
+				let optimisticEl = null;
+				try {
+					const id = await ensureConversation();
+					const content = input.value.trim();
+					if (!content) return;
+					button.disabled = true;
+					// Optimistically append message to UI
+					const container = document.getElementById('chatMessages');
+					optimisticEl = document.createElement('div');
+					optimisticEl.className = 'message-bubble sent optimistic';
+					optimisticEl.innerHTML = `<p>${content}</p><span class="message-time">${new Date().toLocaleTimeString()}</span>`;
+					container.appendChild(optimisticEl);
+					container.scrollTop = container.scrollHeight;
+					await sendMessage(id, content, 'text');
+					input.value = '';
+					await renderChat();
+				} catch (err) {
+					if (optimisticEl && optimisticEl.parentNode) {
+						optimisticEl.parentNode.removeChild(optimisticEl);
+					}
+					alert(err?.message || 'Failed to send message. Please try again.');
+					console.error(err);
+				} finally {
+					button.disabled = false;
+				}
+			});
+			input.addEventListener('keydown', (e) => {
+				if (e.key === 'Enter') {
+					document.getElementById('sendButton').click();
+				}
+			});
+		}
+
+		document.addEventListener('DOMContentLoaded', async () => {
+			setupSend();
+			// Friendly timeout message if it takes too long
+			const loadingTimeout = setTimeout(() => {
+				if (!isRenderedOnce) {
+					document.getElementById('chatMessages').innerHTML = '<div class="empty-state"><i class="fas fa-hourglass-half"></i>&nbsp; Still preparing your conversation... If this persists, go back and try selecting the mentor again.</div>';
+				}
+			}, 7000);
+			try {
+				await renderChat();
+			} catch (_) {
+				// renderChat sets the UI on failure
+			} finally {
+				clearTimeout(loadingTimeout);
+			}
+			// Periodically refresh messages
+			refreshTimer = setInterval(async () => {
+				try {
+					if (conversationId) {
+						await renderChat();
+					}
+				} catch (_) {}
+			}, 10000);
+		});
+		window.addEventListener('beforeunload', () => { if (refreshTimer) clearInterval(refreshTimer); });
+	</script>
+</body>
+</html>
+
+

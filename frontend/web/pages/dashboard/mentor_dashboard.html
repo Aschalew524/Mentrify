@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentrify | Mentor Dashboard</title>
+    <link rel="stylesheet" href="../../css/global/global.css">
+    <link rel="stylesheet" href="../../css/dashboard/mentor_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">Mentrify</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="./mentor_dashboard.html" class="nav-link active">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../my_mentees/my_mentees.html" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            My Mentees
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../mentor_requests/mentor_requests.html" class="nav-link">
+                            <i class="fas fa-user-plus"></i>
+                            Requests
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href=".././tasks/mentor_tasks.html" class="nav-link">
+                            <i class="fas fa-calendar"></i>
+                            Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../sessions/mentor_sessions.html" class="nav-link">
+                            <i class="fas fa-calendar-check"></i>
+                            Sessions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../pages/messages/mentor_messages/mentor_messages.html" class="nav-link">
+                            <i class="fas fa-envelope"></i>
+                            Messages
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../feedback/feedback.html" class="nav-link">
+                            <i class="fas fa-star"></i>
+                            Feedback
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="dashboard-header">
+                <h1 class="welcome-text">Welcome back</h1>
+                <div class="header-actions">
+                    <div class="quick-actions">
+                        <button class="btn btn-primary">Schedule Session</button>
+                    </div>
+                    <div class="profile-dropdown">
+                        <button class="profile-trigger">
+                            <img src="../../assets/images/t1.jpg" alt="Profile" class="profile-avatar">
+                            <span class="profile-name">User</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="../profile/mentor_profile.html" class="dropdown-item">
+                                <i class="icon">👤</i>
+                                My Profile
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" onclick="logout()" class="dropdown-item text-danger">
+                                <i class="icon">🚪</i>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Active Mentees</div>
+                    <div class="stat-value" id="stat-active-mentees">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Average Rating</div>
+                    <div class="stat-value" id="stat-average-rating">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Hours Mentored</div>
+                    <div class="stat-value" id="stat-hours-mentored">-</div>
+                </div>
+            </div>
+
+            <!-- Upcoming Sessions -->
+            <div class="upcoming-sessions">
+                <h2 class="section-title">Upcoming Sessions</h2>
+                <div class="session-list" id="upcoming-sessions-list">
+                    <div class="session-card"><div class="session-info"><div class="session-details"><p>Loading upcoming sessions...</p></div></div></div>
+                </div>
+            </div>
+
+            <!-- Recent Feedback -->
+            <div class="upcoming-sessions">
+                <h2 class="section-title">Recent Feedback</h2>
+                <div class="session-list" id="recent-feedback-list">
+                    <div class="session-card"><div class="session-info"><div class="session-details"><p>Loading recent feedback...</p></div></div></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../../js/dashboard_js/mentor_dashboard.js"></script>
+    <script src="../../js/auth/logout.js"></script>
+</body>
+</html> 

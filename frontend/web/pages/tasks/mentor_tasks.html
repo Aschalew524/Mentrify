@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks - Mentrify</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/dashboard/mentor_dashboard.css">
+    <link rel="stylesheet" href="../../css/tasks/mentor_tasks.css">
+    <style>
+        :root {
+            --card-hover-transform: translateY(-5px);
+            --card-hover-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background: var(--background);
+            margin: 0;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            color: var(--text);
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--white);
+            padding: 2rem;
+            border-right: 1px solid var(--gray);
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            letter-spacing: 2px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: var(--radius);
+            transition: var(--transition);
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateX(5px);
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .nav-link:hover i, .nav-link.active i {
+            transform: scale(1.1);
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .tasks-container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0 2rem;
+        }
+
+        .tasks-list {
+            flex: 1;
+            background: var(--white);
+            margin: 0;
+            padding: 2rem;
+        }
+
+        .tasks-header {
+            background: var(--white);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            margin-bottom: 2rem;
+        }
+
+        .tasks-header-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .tasks-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 0 2rem;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            background: var(--background);
+            color: var(--text);
+            transition: var(--transition-smooth);
+        }
+
+        .filter-btn i {
+            font-size: 1.1rem;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(26, 188, 156, 0.2);
+        }
+
+        .filter-btn:hover:not(.active) {
+            background: var(--gray);
+        }
+
+        .filter-btn .count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .tasks-title {
+            font-size: 2rem;
+            color: var(--secondary);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 188, 156, 0.2);
+        }
+
+        .task-item {
+            width: 100%;
+            margin-bottom: 1.5rem;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 2rem;
+            align-items: start;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: visible;
+        }
+
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .task-info {
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            min-width: 0;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .task-title {
+            font-size: 1.1rem;
+            color: var(--secondary);
+            font-weight: 600;
+            margin: 0;
+            line-height: 1.4;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-description {
+            color: var(--text);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin: 0;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            padding: 0.5rem 0;
+            max-height: 4.5em;
+            overflow: hidden;
+        }
+
+        .task-description:hover {
+            color: var(--primary);
+        }
+
+        .view-more {
+            color: var(--primary);
+            font-size: 0.9rem;
+            font-style: italic;
+            margin-left: 0.5rem;
+        }
+
+        .task-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            min-width: 150px;
+            flex-shrink: 0;
+        }
+
+        .task-mentee {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 200px;
+            flex-shrink: 0;
+        }
+
+        .mentee-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+            flex-shrink: 0;
+        }
+
+        .mentee-info {
+            min-width: 0;
+        }
+
+        .mentee-info h4 {
+            margin: 0;
+            font-size: 0.95rem;
+            color: var(--secondary);
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mentee-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text);
+            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .task-due-date {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text);
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .task-due-date i {
+            color: var(--primary);
+        }
+
+        .task-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .status-not-started {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .status-in-progress {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.75rem;
+            min-width: 160px;
+            justify-content: flex-end;
+            flex-shrink: 0;
+        }
+
+        .read-more-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 0.9rem;
+            padding: 0;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s ease;
+            align-self: flex-start;
+        }
+
+        .read-more-btn:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .read-more-btn i {
+            transition: transform 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .read-more-btn:hover i {
+            transform: translateY(2px);
+        }
+
+        .read-more-btn .read-more-text {
+            transition: color 0.2s ease;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--secondary);
+            margin: 0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text);
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 1200px) {
+            .task-item {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .task-meta {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            .task-mentee {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .task-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .task-info {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                top: 0;
+                height: 100vh;
+                z-index: 1000;
+                transition: var(--transition);
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .tasks-container {
+                padding: 0 1rem;
+            }
+
+            .tasks-header {
+                padding: 1rem;
+            }
+
+            .tasks-header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .task-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .task-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .task-status {
+                align-self: flex-start;
+            }
+
+            .task-meta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .task-description {
+                max-width: 100%;
+            }
+
+            .tasks-header {
+                padding: 1rem;
+            }
+
+            .tasks-header-content {
+                gap: 1rem;
+            }
+
+            .filter-buttons {
+                padding: 0;
+            }
+
+            .filter-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        .description-modal {
+            max-width: 800px;
+            width: 90%;
+        }
+
+        .modal-body {
+            padding: 1rem 0;
+        }
+
+        .modal-task-title {
+            font-size: 1.25rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .modal-task-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 1rem;
+            background: var(--background);
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .description-modal {
+                width: 95%;
+                margin: 1rem;
+            }
+
+            .modal-task-description {
+                max-height: 60vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">Mentrify</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="../../pages/dashboard/mentor_dashboard.html" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../pages/my_mentees/my_mentees.html" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            My Mentees
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../pages/mentor_requests/mentor_requests.html" class="nav-link">
+                            <i class="fas fa-user-plus"></i>
+                            Requests
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../pages/tasks/mentor_tasks.html" class="nav-link active" style="background: var(--primary); color: var(--white);">
+                            <i class="fas fa-tasks"></i>
+                            Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../pages/sessions/mentor_sessions.html" class="nav-link">
+                            <i class="fas fa-calendar-check"></i>
+                            Sessions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../pages/messages/mentor_messages/mentor_messages.html" class="nav-link">
+                            <i class="fas fa-envelope"></i>
+                            Messages
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../pages/feedback/feedback.html" class="nav-link">
+                            <i class="fas fa-star"></i>
+                            Feedback
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="tasks-container">
+                <div class="tasks-header">
+                    <div class="tasks-header-content">
+                        <div class="tasks-header-top">
+                            <h1 class="tasks-title">Manage Tasks</h1>
+                            <button class="btn btn-primary" id="openNewTaskBtn">Assign New Task</button>
+                        </div>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-status="all">
+                                <i class="fas fa-list"></i>
+                                All Tasks
+                                <span class="count">0</span>
+                            </button>
+                            <button class="filter-btn" data-status="not-started">
+                                <i class="fas fa-clock"></i>
+                                Not Started
+                                <span class="count">0</span>
+                            </button>
+                            <button class="filter-btn" data-status="in-progress">
+                                <i class="fas fa-spinner"></i>
+                                In Progress
+                                <span class="count">0</span>
+                            </button>
+                            <button class="filter-btn" data-status="completed">
+                                <i class="fas fa-check-circle"></i>
+                                Completed
+                                <span class="count">0</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tasks-list">
+                    <!-- Intentionally left empty. Content is rendered by JS. -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- New/Edit Task Modal -->
+    <div class="modal" id="newTaskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Assign/Edit Task</h2>
+                <button class="close-modal" id="closeNewTaskModalBtn">&times;</button>
+            </div>
+            <form id="newTaskForm" onsubmit="handleNewTaskSubmit(event)">
+                <div class="form-group" id="menteeGroup">
+                    <label class="form-label" for="mentee">Select Mentee</label>
+                    <select class="form-select" id="mentee" name="mentee">
+                        <option value="">Choose a mentee...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="taskTitle">Task Title</label>
+                    <input type="text" class="form-input" id="taskTitle" name="taskTitle" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="taskDescription">Task Description</label>
+                    <textarea class="form-textarea" id="taskDescription" name="taskDescription" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="dueDate">Due Date</label>
+                    <input type="date" class="form-input" id="dueDate" name="dueDate" required>
+                </div>
+                <div class="form-group" id="statusGroup">
+                    <label class="form-label" for="taskStatus">Status</label>
+                    <select class="form-select" id="taskStatus" name="taskStatus">
+                        <option value="pending">Pending</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                <input type="hidden" id="editTaskId" name="editTaskId">
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeNewTaskModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Description View Modal -->
+    <div class="modal" id="descriptionModal">
+        <div class="modal-content description-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Task Description</h2>
+                <button class="close-modal" id="closeDescriptionModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3 id="modalTaskTitle" class="modal-task-title"></h3>
+                <div id="modalTaskDescription" class="modal-task-description"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/tasks/mentor_task/mentor_task.js"></script>
+    <script>
+        document.getElementById('closeNewTaskModalBtn').addEventListener('click', closeNewTaskModal);
+        document.getElementById('closeDescriptionModalBtn').addEventListener('click', closeDescriptionModal);
+    </script>
+</body>
+</html> 
