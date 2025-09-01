@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mentrify | Login</title>
+  <link rel="stylesheet" href="../../css/global/global.css">
+  <link rel="stylesheet" href="../../css/global/landing-animations.css">
+  <link rel="stylesheet" href="../../css/auth_css/login.css">
+  
+</head>
+<body>
+  <div class="login-main">
+    <div class="login-left">
+      <div class="login-logo">Mentrify</div>
+      <div class="login-quote">“Mentorship is the bridge to your dreams.”<div class="login-quote-author">— Mentrify</div></div>
+    </div>
+    <div class="login-right">
+      <div class="login-form-card">
+        <div class="login-title">Log in</div>
+        <form id="login-form" class="login-form" autocomplete="off">
+          <div class="error-message" id="login-error">Invalid email or password.</div>
+          <label for="email">Email or username</label>
+          <input type="email" id="email" name="email" placeholder="Enter your email or username" required>
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter your password" required>
+          <button type="submit" class="login-btn">Log in</button>
+        </form>
+
+        
+        <div class="divider">Or</div>
+        <a href="#" class="forgot-link">Forgot password?</a>
+        <div class="login-links">
+          Don't have an account?
+          <a href="./register-mentee.html">Sign up as a mentee</a> or
+          <a href="./register-mentor.html">apply to be a mentor</a>
+        </div>
+      </div>
+    </div>  
+  </div>
+  <script src="../../js/auth/login.js"></script>
+</body>
+</html>

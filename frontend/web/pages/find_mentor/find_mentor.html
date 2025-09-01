@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find a Mentor - Mentrify</title>
+    <link rel="stylesheet" href="../../css/global/global.css">
+    <link rel="stylesheet" href="../../css/global/landing-animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/dashboard/mentee_dashboard.css">
+    <link rel="stylesheet" href="../../css/find_mentor/find_mentor.css">
+    <style>
+        .mentors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+
+        .mentor-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mentor-header {
+            padding: 1rem;
+            text-align: center;
+            background: var(--white);
+            position: relative;
+        }
+
+        .mentor-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            margin-bottom: 0.5rem;
+            object-fit: cover;
+        }
+
+        .mentor-name {
+            font-size: 1.1rem;
+            margin: 0.25rem 0;
+            color: var(--text);
+        }
+
+        .mentor-title {
+            font-size: 0.85rem;
+            margin: 0.25rem 0;
+            color: var(--secondary);
+        }
+
+        .mentor-rating {
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            color: var(--secondary);
+        }
+
+        .mentor-rating i {
+            color: var(--accent);
+        }
+
+        .mentor-body {
+            padding: 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .mentor-expertise {
+            margin-bottom: 0.5rem;
+        }
+
+        .expertise-title {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+        }
+
+        .expertise-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .expertise-tag {
+            background: var(--gray);
+            color: var(--secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            transition: var(--transition);
+        }
+
+        .expertise-tag:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .mentor-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+            padding: 0.5rem 0;
+            border-top: 1px solid var(--gray);
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--secondary);
+        }
+
+        .mentor-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: auto;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .search-header {
+            padding: 1.5rem;
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .search-title {
+            font-size: 1.5rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .search-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-input {
+            padding: 0.5rem;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            color: var(--text);
+            background: var(--white);
+        }
+
+        .search-bar {
+            position: relative;
+            margin-top: 1rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            color: var(--text);
+            background: var(--white);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(26, 188, 156, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .mentors-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-filters {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">Mentrify</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="../dashboard/mentee_dashboard.html" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../my_mentors/my_mentors.html" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            My Mentors
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../mentee_requests/mentee_requests.html" class="nav-link">
+                            <i class="fas fa-user-plus"></i>
+                            Requests
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../tasks/mentee_tasks.html" class="nav-link">
+                            <i class="fas fa-bullseye"></i>
+                            Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../sessions/mentee_sessions.html" class="nav-link">
+                            <i class="fas fa-calendar-check"></i>
+                            Sessions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../messages/mentee_messages/mentee_messages.html" class="nav-link">
+                            <i class="fas fa-envelope"></i>
+                            Messages
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="search-header">
+                <h1 class="search-title">Find Your Perfect Mentor</h1>
+                <div class="search-filters">
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-code-branch"></i> Expertise Area</label>
+                        <select class="filter-input">
+                            <option value="">All Areas</option>
+                            <option value="engineering">Engineering</option>
+                            <option value="product">Product Management</option>
+                            <option value="design">Design</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="leadership">Leadership</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-chart-line"></i> Experience Level</label>
+                        <select class="filter-input">
+                            <option value="">Any Level</option>
+                            <option value="entry">Entry Level</option>
+                            <option value="mid">Mid Level</option>
+                            <option value="senior">Senior Level</option>
+                            <option value="executive">Executive Level</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-star"></i> Rating</label>
+                        <select class="filter-input">
+                            <option value="">Any Rating</option>
+                            <option value="4">4+ Stars</option>
+                            <option value="4.5">4.5+ Stars</option>
+                            <option value="5">5 Stars</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="search-bar">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Search by name, skills, or keywords...">
+                </div>
+            </div>
+
+            <div class="mentors-grid">
+                <!-- Mentor cards will be dynamically inserted here -->
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { requestMentorship, getPendingMentorRequests } from '../../js/mentorship/mentorship.js';
+
+        const DEFAULT_AVATAR_URL = '../../assets/images/default-avatar.png';
+        let pendingRequests = [];
+
+        // Load pending requests
+        async function loadPendingRequests() {
+            try {
+                const requests = await getPendingMentorRequests();
+                pendingRequests = requests || [];
+            } catch (error) {
+                console.error('Error loading pending requests:', error);
+            }
+        }
+
+        function displayMentors(mentors) {
+            const mentorsGrid = document.querySelector('.mentors-grid');
+            mentorsGrid.innerHTML = '';
+
+            if (!mentors || mentors.length === 0) {
+                mentorsGrid.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">No mentors found at the moment.</p>';
+                return;
+            }
+
+            mentors.forEach(mentor => {
+                const mentorCard = document.createElement('div');
+                mentorCard.className = 'mentor-card';
+
+                const avatarUrl = mentor.photo_url ? mentor.photo_url : DEFAULT_AVATAR_URL;
+                
+                const skillsString = mentor.skills || "";
+                const skillsArray = skillsString.split(',').map(skill => skill.trim()).filter(skill => skill);
+                let expertiseTagsHTML = '';
+                if (skillsArray.length > 0) {
+                    expertiseTagsHTML = skillsArray.map(skill => `<span class="expertise-tag">${escapeHTML(skill)}</span>`).join('');
+                } else {
+                    expertiseTagsHTML = '<span class="expertise-tag">No specific skills listed</span>';
+                }
+
+                const yearsExpText = (mentor.years_of_experience !== null && mentor.years_of_experience !== undefined) 
+                                    ? `${mentor.years_of_experience}+` 
+                                    : 'N/A';
+
+                // Check if there's a pending request for this mentor
+                const hasPendingRequest = pendingRequests.some(request => 
+                    request.mentor && String(request.mentor.id) === String(mentor.id) && String(request.status).toLowerCase() === 'pending'
+                );
+
+                mentorCard.innerHTML = `
+                    <div class="mentor-header">
+                        <img src="${escapeHTML(avatarUrl)}" alt="${escapeHTML(mentor.first_name)} ${escapeHTML(mentor.last_name)}" class="mentor-avatar" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR_URL}';">
+                        <h2 class="mentor-name">${escapeHTML(mentor.first_name)} ${escapeHTML(mentor.last_name)}</h2>
+                        <p class="mentor-title">${escapeHTML(mentor.job_title) || 'N/A'} at ${escapeHTML(mentor.company) || 'N/A'}</p>
+                        <div class="mentor-rating">
+                            <i class="fas fa-star"></i>
+                            <span>N/A (0 reviews)</span>
+                        </div>
+                    </div>
+                    <div class="mentor-body">
+                        <div class="mentor-expertise">
+                            <h3 class="expertise-title"><i class="fas fa-lightbulb"></i> Expertise</h3>
+                            <div class="expertise-tags">
+                                ${expertiseTagsHTML}
+                            </div>
+                        </div>
+                        <div class="mentor-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">${escapeHTML(yearsExpText)}</div>
+                                <div class="stat-label">Years Exp</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">N/A</div>
+                                <div class="stat-label">Mentees</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">N/A%</div>
+                                <div class="stat-label">Success</div>
+                            </div>
+                        </div>
+                        <div class="mentor-actions">
+                            <button class="btn ${hasPendingRequest ? 'btn-outline' : 'btn-primary'} connect-btn" 
+                                    data-mentor-id="${mentor.id}"
+                                    ${hasPendingRequest ? 'disabled' : ''}>
+                                <i class="fas ${hasPendingRequest ? 'fa-clock' : 'fa-user-plus'}"></i>
+                                ${hasPendingRequest ? 'Pending' : 'Connect'}
+                            </button>
+                            <a href="../profile/mentor_profile.html?id=${mentor.id}&view=public" class="btn btn-outline">
+                                <i class="fas fa-user"></i>
+                                View Profile
+                            </a>
+                        </div>
+                    </div>
+                `;
+
+                // Add click handler for connect button
+                const connectBtn = mentorCard.querySelector('.connect-btn');
+                if (!hasPendingRequest) {
+                    connectBtn.addEventListener('click', async function() {
+                        const mentorId = this.dataset.mentorId;
+                        try {
+                            // Show loading state
+                            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                            this.disabled = true;
+
+                            // Send request using the mentorship.js function
+                            const response = await requestMentorship(mentorId);
+                            console.log('Request sent successfully:', response);
+
+                            // Update button state
+                            this.innerHTML = '<i class="fas fa-clock"></i> Pending';
+                            this.disabled = true;
+                            this.classList.remove('btn-primary');
+                            this.classList.add('btn-outline');
+
+                            // Add to pending requests with mentee ID
+                            pendingRequests.push({
+                                id: response.id,
+                                mentor: {
+                                    id: mentorId,
+                                    first_name: mentor.first_name,
+                                    last_name: mentor.last_name
+                                },
+                                mentee_id: response.mentee_id,
+                                status: 'pending'
+                            });
+
+                            // Store the request in localStorage for reference
+                            localStorage.setItem('pendingRequests', JSON.stringify(pendingRequests));
+
+                            // Show success message
+                            alert('Mentorship request sent successfully!');
+                        } catch (error) {
+                            console.error('Error sending request:', error);
+                            // Reset button state on error
+                            this.innerHTML = '<i class="fas fa-user-plus"></i> Connect';
+                            this.disabled = false;
+                            alert('Failed to send request: ' + (error.message || 'Please try again.'));
+                        }
+                    });
+                }
+
+                mentorsGrid.appendChild(mentorCard);
+            });
+        }
+
+        async function fetchMentors() {
+            const apiUrl = 'http://mentrifyapis.biruk.tech/api/mentors';
+            const mentorsGrid = document.querySelector('.mentors-grid');
+            mentorsGrid.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">Loading mentors...</p>';
+
+            // Load pending requests first
+            await loadPendingRequests();
+
+            const accessToken = localStorage.getItem('access_token');
+
+            if (!accessToken) {
+                console.error("Access token is missing. Cannot fetch mentors.");
+                mentorsGrid.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">Authentication error: Access token is missing. Please log in.</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const mentorsData = await response.json();
+                
+                if (Array.isArray(mentorsData)) {
+                    displayMentors(mentorsData);
+                } else if (mentorsData && Array.isArray(mentorsData.data)) {
+                    displayMentors(mentorsData.data);
+                } else {
+                    console.error('Error: Unexpected data format:', mentorsData);
+                    mentorsGrid.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">Error loading mentors: Unexpected data format.</p>';
+                }
+            } catch (error) {
+                console.error('Error fetching mentors:', error);
+                mentorsGrid.innerHTML = `<p style="text-align: center; grid-column: 1 / -1;">Could not load mentors. ${error.message}. Please try again later.</p>`;
+            }
+        }
+
+        function escapeHTML(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/[&<>"]|'/g, function (match) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;',
+                }[match];
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchMentors);
+
+        // Add filter functionality
+        document.querySelectorAll('.filter-input').forEach(filter => {
+            filter.addEventListener('change', updateResults);
+        });
+
+        document.querySelector('.search-input').addEventListener('input', updateResults);
+
+        function updateResults() {
+            console.log('Updating results based on filters...');
+        }
+
+        // Handle navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

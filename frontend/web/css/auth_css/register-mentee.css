@@ -1,0 +1,96 @@
+body {
+    background: var(--background);
+    min-height: 100vh;
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mentee-register-container {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(44,62,80,0.10);
+    max-width: 400px;
+    width: 100%;
+    padding: 2.5rem 2rem 2rem 2rem;
+    margin: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .mentee-register-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--secondary);
+    margin-bottom: 1.2rem;
+    text-align: center;
+  }
+  .mentee-register-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+  .mentee-register-label {
+    font-size: 1rem;
+    color: var(--secondary);
+    margin-bottom: 0.2rem;
+    font-weight: 500;
+  }
+  .mentee-register-input, .mentee-register-textarea {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    border: 1.5px solid #d1d5db;
+    font-size: 1rem;
+    outline: none;
+    transition: border 0.2s;
+    background: #fff;
+    resize: none;
+  }
+  .mentee-register-input:focus, .mentee-register-textarea:focus {
+    border: 1.5px solid var(--primary);
+  }
+  .mentee-register-btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.8rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.2s;
+  }
+  .mentee-register-btn:hover {
+    background: var(--primary-dark);
+  }
+  .mentee-login-link {
+    margin-top: 1.2rem;
+    text-align: center;
+    font-size: 0.98rem;
+  }
+  .mentee-login-link a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .mentee-login-link a:hover {
+    color: var(--accent);
+  }
+  @media (max-width: 600px) {
+    .mentee-register-container {
+      padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+    }
+  }
+  .error-message {
+    color: red;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    display: none;
+  }
+  

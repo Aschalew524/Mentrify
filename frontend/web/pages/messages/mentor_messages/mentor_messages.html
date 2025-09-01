@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Mentrify</title>
+    <link rel="stylesheet" href="../../../css/global/global.css">
+    <link rel="stylesheet" href="../../../css/dashboard/mentor_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .messages-container { display: grid; grid-template-columns: 320px 1fr; height: calc(100vh - 4rem); background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        .messages-list {
+            border-right: 1px solid var(--gray);
+            overflow-y: auto;
+        }
+        .message-preview { padding: 14px; border-bottom: 1px solid var(--gray); cursor: pointer; transition: background-color 0.15s; }
+        .message-preview:hover { background-color: var(--background); }
+        .message-preview-header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+        .message-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        .message-info { flex: 1; display: flex; align-items: center; gap: 10px; }
+        .message-name { font-weight: 600; color: var(--text); margin: 0; }
+        .message-time { margin-left: auto; font-size: 0.8rem; color: var(--secondary); }
+        .message-content { color: var(--text); font-size: 0.92rem; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .unread-badge { background: var(--primary); color: var(--white); padding: 0.18rem 0.5rem; border-radius: 12px; font-size: 0.78rem; margin-left: 6px; }
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--secondary);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.5rem;
+        }
+
+        .empty-state p {
+            margin: 0;
+            opacity: 0.8;
+        }
+        .chat-pane { display: grid; grid-template-rows: auto 1fr auto; height: 100%; background: #f8f9fb; }
+        .chat-header { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .chat-header .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        .chat-header .header-info h3 { margin: 0; font-size: 1rem; }
+        .chat-header .header-info small { color: var(--secondary); }
+        .chat-messages { padding: 16px; overflow-y: auto; }
+        .message-bubble { max-width: 70%; margin-bottom: 10px; padding: 10px 12px; border-radius: 14px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .message-bubble.sent { margin-left: auto; background: var(--primary-light); }
+        .message-bubble .message-time { display: block; font-size: 0.75rem; color: var(--secondary); margin-top: 6px; }
+        .chat-input { display: flex; gap: 10px; padding: 12px; background: #fff; box-shadow: 0 -1px 4px rgba(0,0,0,0.06); }
+        .chat-input input { flex: 1; padding: 10px 12px; border: 1px solid var(--gray); border-radius: 10px; }
+        .chat-input button { padding: 10px 16px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">Mentrify</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="../../../pages/dashboard/mentor_dashboard.html" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../../pages/my_mentees/my_mentees.html" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            My Mentees
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../../pages/mentor_requests/mentor_requests.html" class="nav-link">
+                            <i class="fas fa-user-plus"></i>
+                            Requests
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../../pages/tasks/mentor_tasks.html" class="nav-link">
+                            <i class="fas fa-bullseye"></i>
+                            Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../../pages/sessions/mentor_sessions.html" class="nav-link">
+                            <i class="fas fa-calendar-check"></i>
+                            Sessions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../../pages/messages/mentor_messages/mentor_messages.html" class="nav-link active" style="background: var(--primary); color: var(--white);">
+                            <i class="fas fa-envelope"></i>
+                            Messages
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../../../pages/feedback/feedback.html" class="nav-link">
+                            <i class="fas fa-comment-alt"></i>
+                            Feedback
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content" style="padding: 18px; background:#f8f9fb;">
+            <h1 class="section-title">Messages</h1>
+            <div class="messages-container">
+                <div class="messages-list" id="conversationsList"></div>
+                <div class="chat-pane">
+                    <div class="chat-header">
+                        <img id="otherAvatar" class="avatar" src="../../../assets/images/default-avatar.jpg" alt="User">
+                        <div class="header-info">
+                            <h3 id="otherName">Select a chat</h3>
+                            <small id="otherTitle"></small>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="empty-state"><i class="fas fa-comments"></i>&nbsp; Choose a conversation from the left</div>
+                    </div>
+                    <div class="chat-input">
+                        <input id="messageInput" type="text" placeholder="Type your message...">
+                        <button id="sendButton" class="btn btn-primary">Send</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script type="module">
+        import { fetchConversations, fetchConversationDetails, fetchConversationMessages, sendMessage, markConversationAsRead } from '../../../js/messages/conversations.js';
+        const DEFAULT_AVATAR_URL = '../../../assets/images/default-avatar.jpg';
+        function formatTime(ts){ if(!ts) return ''; try{ return new Date(ts).toLocaleString(); } catch(_){ return ''; } }
+        function escapeHtml(t){ return String(t||'').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+        let activeConversationId=null;
+        async function renderConversations(){
+            const listEl=document.getElementById('conversationsList');
+            listEl.innerHTML='<p style="text-align:center; padding: 18px 0;">Loading conversations...</p>';
+            try{
+                const data=await fetchConversations();
+                const conversations=data.conversations||data||[];
+                if(!Array.isArray(conversations)||conversations.length===0){
+                    listEl.innerHTML='<div class="empty-state"><i class="fas fa-comments"></i><h3>No conversations yet</h3><p>Start a chat with your mentee.</p></div>';
+                    return;
+                }
+                listEl.innerHTML=conversations.map(conv=>{
+                    const other=conv.other_participant||conv.mentee||conv.mentor||{};
+                    const lastMsg=conv.last_message||{};
+                    const unread=conv.unread_count||0;
+                    const name=`${other.first_name||''} ${other.last_name||''}`.trim()||'Conversation';
+                    return `
+                        <div class="message-preview" data-conversation-id="${conv.id}">
+                            <div class="message-preview-header">
+                                <img src="${other.photo_url||DEFAULT_AVATAR_URL}" alt="${name}" class="message-avatar" onerror="this.src='${DEFAULT_AVATAR_URL}'">
+                                <div class="message-info">
+                                    <h3 class="message-name">${name}</h3>
+                                    <span class="message-time">${formatTime(conv.last_message_at)}</span>
+                                    ${unread>0?`<span class="unread-badge">${unread}</span>`:''}
+                                </div>
+                            </div>
+                            <p class="message-content">${escapeHtml(lastMsg.content||'')}</p>
+                        </div>
+                    `;
+                }).join('');
+                listEl.querySelectorAll('.message-preview').forEach(item=>{
+                    item.addEventListener('click',async()=>{
+                        const id=item.getAttribute('data-conversation-id'); if(!id) return; activeConversationId=id; await renderChat(id);
+                    });
+                });
+                const first=listEl.querySelector('.message-preview');
+                if(first){ activeConversationId=first.getAttribute('data-conversation-id'); await renderChat(activeConversationId); }
+            }catch(err){ listEl.innerHTML='<div class="empty-state"><i class="fas fa-triangle-exclamation"></i><h3>Failed to load</h3><p>Please refresh the page.</p></div>'; }
+        }
+        async function renderHeader(other){ const avatar=document.getElementById('otherAvatar'); const name=document.getElementById('otherName'); const title=document.getElementById('otherTitle'); avatar.src=other.photo_url||DEFAULT_AVATAR_URL; avatar.onerror=()=>{avatar.src=DEFAULT_AVATAR_URL;}; name.textContent=`${other.first_name||''} ${other.last_name||''}`.trim()||'Conversation'; title.textContent=other.job_title||''; }
+        async function renderChat(conversationId){ if(!conversationId) return; let other={}; try{ const details=await fetchConversationDetails(conversationId); const conv=details.conversation||details; other=conv.other_participant||conv.mentee||conv.mentor||{}; }catch(_){ } await renderHeader(other); let messages=[]; try{ const resp=await fetchConversationMessages(conversationId); messages=resp?.messages?.data||resp?.messages||resp?.data||[]; }catch(_){ } const container=document.getElementById('chatMessages'); if(!Array.isArray(messages)||messages.length===0){ container.innerHTML='<div class="empty-state"><i class="fas fa-comments"></i>&nbsp; No messages yet. Say hello!</div>'; } else { container.innerHTML=messages.map(msg=>`<div class="message-bubble ${other&&msg.sender_id===other.id?'received':'sent'}"><p>${escapeHtml(msg.content)}</p><span class="message-time">${formatTime(msg.created_at)}</span></div>`).join(''); container.scrollTop=container.scrollHeight; } await markConversationAsRead(conversationId); }
+        function setupSend(){ const input=document.getElementById('messageInput'); const button=document.getElementById('sendButton'); button.addEventListener('click',async()=>{ const content=input.value.trim(); if(!content||!activeConversationId) return; button.disabled=true; let opt=null; try{ const container=document.getElementById('chatMessages'); opt=document.createElement('div'); opt.className='message-bubble sent optimistic'; opt.innerHTML=`<p>${escapeHtml(content)}</p><span class='message-time'>${formatTime(new Date())}</span>`; container.appendChild(opt); container.scrollTop=container.scrollHeight; await sendMessage(activeConversationId,content,'text'); input.value=''; await renderChat(activeConversationId); }catch(err){ if(opt&&opt.parentNode) opt.parentNode.remove(); alert('Failed to send message. Please try again.'); } finally { button.disabled=false; } }); input.addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('sendButton').click(); }); }
+        document.addEventListener('DOMContentLoaded',()=>{ renderConversations(); setupSend(); });
+    </script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentorship Requests - Mentrify</title>
+    <link rel="stylesheet" href="../../css/global/global.css">
+    <link rel="stylesheet" href="../../css/global/landing-animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/dashboard/mentor_dashboard.css">
+    <style>
+        .requests-container {
+            padding: 1.5rem;
+        }
+
+        .requests-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .requests-title {
+            font-size: 1.5rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .requests-subtitle {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .requests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .request-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: var(--transition);
+        }
+
+        .request-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .request-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .mentee-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-light);
+        }
+
+        .mentee-info h3 {
+            font-size: 1.1rem;
+            margin: 0;
+            color: var(--text);
+        }
+
+        .mentee-info p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin: 0.25rem 0 0;
+        }
+
+        .request-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            width: fit-content;
+        }
+
+        .status-pending {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .status-accepted {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .status-rejected {
+            background: var(--error-light);
+            color: var(--error);
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background: var(--success-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: var(--error-dark);
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        .empty-state h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .empty-state p {
+            font-size: 0.9rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">Mentrify</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="../dashboard/mentor_dashboard.html" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../my_mentees/my_mentees.html" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            My Mentees
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../mentor_requests/mentor_requests.html" class="nav-link active">
+                            <i class="fas fa-user-plus"></i>
+                            Requests
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../tasks/mentor_tasks.html" class="nav-link">
+                            <i class="fas fa-bullseye"></i>
+                            Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../sessions/mentor_sessions.html" class="nav-link">
+                            <i class="fas fa-calendar-check"></i>
+                            Sessions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../messages/mentor_messages/mentor_messages.html" class="nav-link">
+                            <i class="fas fa-envelope"></i>
+                            Messages
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../feedback/feedback.html" class="nav-link">
+                            <i class="fas fa-star"></i>
+                            Feedback
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="requests-container">
+                <div class="requests-header">
+                    <h1 class="requests-title">Mentorship Requests</h1>
+                    <p class="requests-subtitle">View and manage mentorship requests from mentees</p>
+                </div>
+
+                <div class="requests-grid" id="requestsGrid">
+                    <!-- Requests will be dynamically inserted here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { loadRequests } from '../../js/mentorship/mentors_request_page/mentor_requests.js';
+
+        // Load requests when page loads
+        document.addEventListener('DOMContentLoaded', loadRequests);
+    </script>
+</body>
+</html> 
