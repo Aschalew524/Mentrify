@@ -9,6 +9,10 @@
         {
             "url": "http://localhost:8080/api",
             "description": "Mentrify API Server"
+        },
+        {
+            "url":"http://mentrifyapis.biruk.tech",
+            "description": "Mentrify API Server (Production)"
         }
     ],
     "paths": {
