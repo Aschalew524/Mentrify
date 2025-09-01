@@ -255,6 +255,127 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Modern Alert Popup Styles */
+        .modern-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modern-alert-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modern-alert {
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+            padding: 2rem;
+            text-align: center;
+            transform: scale(0.7) translateY(-50px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modern-alert-overlay.show .modern-alert {
+            transform: scale(1) translateY(0);
+        }
+
+        .modern-alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .modern-alert.success::before {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        .modern-alert.error::before {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        .modern-alert-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--white);
+            background: var(--primary);
+        }
+
+        .modern-alert.success .modern-alert-icon {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+
+        .modern-alert.error .modern-alert-icon {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+        }
+
+        .modern-alert-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .modern-alert-message {
+            font-size: 1rem;
+            color: var(--secondary);
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .modern-alert-button {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(26, 188, 156, 0.3);
+        }
+
+        .modern-alert-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 188, 156, 0.4);
+        }
+
+        .modern-alert.success .modern-alert-button {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .modern-alert.error .modern-alert-button {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -354,10 +475,24 @@
         </main>
     </div>
 
+    <!-- Modern Alert Popup -->
+    <div class="modern-alert-overlay" id="modernAlertOverlay">
+        <div class="modern-alert" id="modernAlert">
+            <div class="modern-alert-icon" id="modernAlertIcon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h3 class="modern-alert-title" id="modernAlertTitle">Success!</h3>
+            <p class="modern-alert-message" id="modernAlertMessage">Operation completed successfully.</p>
+            <button class="modern-alert-button" id="modernAlertButton" onclick="closeModernAlert()">
+                OK
+            </button>
+        </div>
+    </div>
+
     <script type="module">
         import { requestMentorship, getPendingMentorRequests } from '../../js/mentorship/mentorship.js';
 
-        const DEFAULT_AVATAR_URL = '../../assets/images/default-avatar.png';
+        const DEFAULT_AVATAR_URL = '../../assets/images/default-avatar.jpg';
         let pendingRequests = [];
 
         // Load pending requests
@@ -383,7 +518,7 @@
                 const mentorCard = document.createElement('div');
                 mentorCard.className = 'mentor-card';
 
-                const avatarUrl = mentor.photo_url ? mentor.photo_url : DEFAULT_AVATAR_URL;
+                const avatarUrl = mentor.photo_url && mentor.photo_url.trim() !== '' ? mentor.photo_url : DEFAULT_AVATAR_URL;
                 
                 const skillsString = mentor.skills || "";
                 const skillsArray = skillsString.split(',').map(skill => skill.trim()).filter(skill => skill);
@@ -485,13 +620,13 @@
                             localStorage.setItem('pendingRequests', JSON.stringify(pendingRequests));
 
                             // Show success message
-                            alert('Mentorship request sent successfully!');
+                            showModernAlert('Success!', 'Mentorship request sent successfully!', 'success');
                         } catch (error) {
                             console.error('Error sending request:', error);
                             // Reset button state on error
                             this.innerHTML = '<i class="fas fa-user-plus"></i> Connect';
                             this.disabled = false;
-                            alert('Failed to send request: ' + (error.message || 'Please try again.'));
+                            showModernAlert('Error!', 'Failed to send request: ' + (error.message || 'Please try again.'), 'error');
                         }
                     });
                 }
@@ -532,8 +667,10 @@
                 const mentorsData = await response.json();
                 
                 if (Array.isArray(mentorsData)) {
+                    allMentors = mentorsData;
                     displayMentors(mentorsData);
                 } else if (mentorsData && Array.isArray(mentorsData.data)) {
+                    allMentors = mentorsData.data;
                     displayMentors(mentorsData.data);
                 } else {
                     console.error('Error: Unexpected data format:', mentorsData);
@@ -558,6 +695,58 @@
             });
         }
 
+        // Modern Alert Functions
+        function showModernAlert(title, message, type = 'success') {
+            const overlay = document.getElementById('modernAlertOverlay');
+            const alert = document.getElementById('modernAlert');
+            const titleEl = document.getElementById('modernAlertTitle');
+            const messageEl = document.getElementById('modernAlertMessage');
+            const iconEl = document.getElementById('modernAlertIcon');
+
+            // Set content
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+
+            // Set type-specific styles and icons
+            alert.className = `modern-alert ${type}`;
+            
+            if (type === 'success') {
+                iconEl.innerHTML = '<i class="fas fa-check"></i>';
+            } else if (type === 'error') {
+                iconEl.innerHTML = '<i class="fas fa-times"></i>';
+            } else if (type === 'warning') {
+                iconEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+            } else {
+                iconEl.innerHTML = '<i class="fas fa-info"></i>';
+            }
+
+            // Show the alert
+            overlay.classList.add('show');
+            
+            // Auto-hide after 3 seconds for success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    closeModernAlert();
+                }, 3000);
+            }
+        }
+
+        function closeModernAlert() {
+            const overlay = document.getElementById('modernAlertOverlay');
+            overlay.classList.remove('show');
+        }
+
+        // Close alert when clicking outside
+        document.getElementById('modernAlertOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModernAlert();
+            }
+        });
+
+        // Make functions globally accessible
+        window.showModernAlert = showModernAlert;
+        window.closeModernAlert = closeModernAlert;
+
         document.addEventListener('DOMContentLoaded', fetchMentors);
 
         // Add filter functionality
@@ -567,8 +756,91 @@
 
         document.querySelector('.search-input').addEventListener('input', updateResults);
 
+        let allMentors = []; // Store all mentors for filtering
+
         function updateResults() {
-            console.log('Updating results based on filters...');
+            const expertiseFilter = document.querySelectorAll('.filter-input')[0].value;
+            const experienceFilter = document.querySelectorAll('.filter-input')[1].value;
+            const ratingFilter = document.querySelectorAll('.filter-input')[2].value;
+            const searchQuery = document.querySelector('.search-input').value.toLowerCase();
+
+            console.log('Applying filters:', { expertiseFilter, experienceFilter, ratingFilter, searchQuery });
+
+            let filteredMentors = allMentors.filter(mentor => {
+                // Search filter
+                if (searchQuery) {
+                    const fullName = `${mentor.first_name} ${mentor.last_name}`.toLowerCase();
+                    const skills = (mentor.skills || '').toLowerCase();
+                    const jobTitle = (mentor.job_title || '').toLowerCase();
+                    const company = (mentor.company || '').toLowerCase();
+                    
+                    if (!fullName.includes(searchQuery) && 
+                        !skills.includes(searchQuery) && 
+                        !jobTitle.includes(searchQuery) && 
+                        !company.includes(searchQuery)) {
+                        return false;
+                    }
+                }
+
+                // Expertise filter
+                if (expertiseFilter) {
+                    const skills = (mentor.skills || '').toLowerCase();
+                    const jobTitle = (mentor.job_title || '').toLowerCase();
+                    
+                    switch(expertiseFilter) {
+                        case 'engineering':
+                            if (!skills.includes('engineering') && !skills.includes('developer') && 
+                                !skills.includes('software') && !jobTitle.includes('engineer') && 
+                                !jobTitle.includes('developer')) return false;
+                            break;
+                        case 'product':
+                            if (!skills.includes('product') && !jobTitle.includes('product')) return false;
+                            break;
+                        case 'design':
+                            if (!skills.includes('design') && !skills.includes('ui') && 
+                                !skills.includes('ux') && !jobTitle.includes('design')) return false;
+                            break;
+                        case 'marketing':
+                            if (!skills.includes('marketing') && !jobTitle.includes('marketing')) return false;
+                            break;
+                        case 'leadership':
+                            if (!skills.includes('leadership') && !skills.includes('management') && 
+                                !jobTitle.includes('manager') && !jobTitle.includes('lead') && 
+                                !jobTitle.includes('director') && !jobTitle.includes('ceo') && 
+                                !jobTitle.includes('cto')) return false;
+                            break;
+                    }
+                }
+
+                // Experience level filter
+                if (experienceFilter) {
+                    const years = mentor.years_of_experience || 0;
+                    switch(experienceFilter) {
+                        case 'entry':
+                            if (years > 3) return false;
+                            break;
+                        case 'mid':
+                            if (years < 3 || years > 8) return false;
+                            break;
+                        case 'senior':
+                            if (years < 8 || years > 15) return false;
+                            break;
+                        case 'executive':
+                            if (years < 15) return false;
+                            break;
+                    }
+                }
+
+                // Rating filter (for now just return true since we don't have rating data)
+                if (ratingFilter) {
+                    // TODO: Implement when rating data is available
+                    // For now, we'll skip this filter
+                }
+
+                return true;
+            });
+
+            displayMentors(filteredMentors);
         }
 
         // Handle navigation

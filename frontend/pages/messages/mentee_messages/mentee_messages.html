@@ -240,133 +240,181 @@
         <main class="main-content">
             <div class="messages-container">
                 <!-- Messages List -->
-                <div class="messages-list">
-                    <div class="message-preview active" data-user-id="john-smith">
-                        <div class="message-preview-header">
-                            <img src="../../../assets/images/t1.jpg" alt="Mentor" class="message-avatar">
-                            <div class="message-info">
-                                <h3 class="message-name">John Smith</h3>
-                                <span class="message-time">10:30 AM</span>
-                            </div>
-                            <span class="unread-badge">2</span>
-                        </div>
-                        <p class="message-content">Hello! How are you doing with the tasks assigned last week?</p>
-                    </div>
-                    <div class="message-preview" data-user-id="emily-davis">
-                        <div class="message-preview-header">
-                            <img src="../../../assets/images/t1.jpg" alt="Mentor" class="message-avatar">
-                            <div class="message-info">
-                                <h3 class="message-name">Emily Davis</h3>
-                                <span class="message-time">Yesterday</span>
-                            </div>
-                        </div>
-                        <p class="message-content">Great job on the recent project! Let's discuss your progress in our next session.</p>
-                    </div>
+                <div class="messages-list" id="messagesList">
+                    <!-- Messages will be loaded dynamically -->
                 </div>
 
                 <!-- Chat Window -->
-                <div class="chat-window">
-                    <div class="chat-header">
-                        <img src="../../../assets/images/t1.jpg" alt="Mentor" class="message-avatar">
-                        <div class="message-info">
-                            <h3 class="message-name">John Smith</h3>
-                            <span class="message-time">Online</span>
-                        </div>
-                    </div>
-                    <div class="chat-messages">
-                        <div class="message-bubble received">
-                            <p>Hello! How are you doing with the tasks assigned last week?</p>
-                            <span class="message-time">10:30 AM</span>
-                        </div>
-                        <div class="message-bubble sent">
-                            <p>Hi John! I've completed most of them. Just working on the final task now.</p>
-                            <span class="message-time">10:32 AM</span>
-                        </div>
-                        <div class="message-bubble received">
-                            <p>That's great to hear! Let me know if you need any help with the final task.</p>
-                            <span class="message-time">10:33 AM</span>
-                        </div>
-                    </div>
-                    <div class="chat-input">
-                        <input type="text" placeholder="Type your message...">
-                        <button><i class="fas fa-paper-plane"></i> Send</button>
+                <div class="chat-window" id="chatWindow">
+                    <div class="empty-state">
+                        <i class="fas fa-comments"></i>
+                        <h3>Select a conversation</h3>
+                        <p>Choose a mentor from your list to start chatting</p>
                     </div>
                 </div>
             </div>
         </main>
     </div>
-    <script>
-        // Sample conversation data
-        const conversations = {
-            'john-smith': {
-                name: 'John Smith',
-                avatar: '../../../assets/images/t1.jpg',
-                status: 'Online',
-                messages: [
-                    { type: 'received', content: 'Hello! How are you doing with the tasks assigned last week?', time: '10:30 AM' },
-                    { type: 'sent', content: 'Hi John! I\'ve completed most of them. Just working on the final task now.', time: '10:32 AM' },
-                    { type: 'received', content: 'That\'s great to hear! Let me know if you need any help with the final task.', time: '10:33 AM' }
-                ]
-            },
-            'emily-davis': {
-                name: 'Emily Davis',
-                avatar: '../../../assets/images/t1.jpg',
-                status: 'Last seen 2h ago',
-                messages: [
-                    { type: 'received', content: 'Great job on the recent project! Let\'s discuss your progress in our next session.', time: 'Yesterday' },
-                    { type: 'sent', content: 'Thank you! I\'m looking forward to our next session.', time: 'Yesterday' }
-                ]
+    <script type="module">
+        import { getActiveMentors } from '../../../js/mentorship/mentorship.js';
+
+        const DEFAULT_AVATAR_URL = '../../../assets/images/default-avatar.jpg';
+
+        // Load active mentors to populate message list
+        async function loadMentorsList() {
+            try {
+                const messagesList = document.getElementById('messagesList');
+                messagesList.innerHTML = `
+                    <div style="padding: 2rem; text-align: center; color: var(--secondary);">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <p>Loading conversations...</p>
+                    </div>
+                `;
+
+                const response = await getActiveMentors();
+                const mentors = Array.isArray(response) ? response : (response.data || []);
+                
+                if (!mentors || mentors.length === 0) {
+                    messagesList.innerHTML = `
+                        <div style="padding: 3rem 2rem; text-align: center;">
+                            <i class="fas fa-user-friends" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem; opacity: 0.7;"></i>
+                            <h3 style="color: var(--text); margin-bottom: 1rem;">No Active Mentors</h3>
+                            <p style="color: var(--secondary); margin-bottom: 2rem;">You haven't connected with any mentors yet. Start your mentorship journey by finding the perfect mentor.</p>
+                            <a href="../../find_mentor/find_mentor.html" style="background: var(--primary); color: var(--white); padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; display: inline-block;">
+                                <i class="fas fa-search"></i> Find a Mentor
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                messagesList.innerHTML = mentors.map(mentorship => {
+                    const mentor = mentorship.mentor;
+                    const displayName = `${mentor.first_name || ''} ${mentor.last_name || ''}`.trim() || `Mentor #${mentor.id}`;
+                    const avatarUrl = mentor.photo_url && mentor.photo_url.trim() !== '' ? mentor.photo_url : DEFAULT_AVATAR_URL;
+                    
+                    return `
+                        <div class="message-preview" data-mentor-id="${mentor.id}" onclick="openChat('${mentor.id}', '${displayName}', '${avatarUrl}')">
+                            <div class="message-preview-header">
+                                <img src="${avatarUrl}" alt="${displayName}" class="message-avatar"
+                                     onerror="this.onerror=null;this.src='${DEFAULT_AVATAR_URL}'">
+                                <div class="message-info">
+                                    <h3 class="message-name">${displayName}</h3>
+                                    <span class="message-time">Available</span>
+                                </div>
+                            </div>
+                            <p class="message-content">Click to start a conversation with ${displayName}</p>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error loading mentors list:', error);
+                const messagesList = document.getElementById('messagesList');
+                messagesList.innerHTML = `
+                    <div style="padding: 3rem 2rem; text-align: center;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ef4444; margin-bottom: 1rem;"></i>
+                        <h3 style="color: var(--text); margin-bottom: 1rem;">Failed to Load</h3>
+                        <p style="color: var(--secondary); margin-bottom: 2rem;">We couldn't load your conversations right now. Please check your connection and try again.</p>
+                        <button onclick="loadMentorsList()" style="background: var(--primary); color: var(--white); padding: 0.75rem 1.5rem; border: none; border-radius: 8px; cursor: pointer;">
+                            <i class="fas fa-redo"></i> Try Again
+                        </button>
+                    </div>
+                `;
             }
-        };
+        }
 
-        // Function to switch conversation
-        function switchConversation(userId) {
-            const conversation = conversations[userId];
-            if (!conversation) return;
-
-            // Update chat header
-            const chatHeader = document.querySelector('.chat-header');
-            chatHeader.innerHTML = `
-                <img src="${conversation.avatar}" alt="${conversation.name}" class="message-avatar">
-                <div class="message-info">
-                    <h3 class="message-name">${conversation.name}</h3>
-                    <span class="message-time">${conversation.status}</span>
-                </div>
-            `;
-
-            // Update chat messages
-            const chatMessages = document.querySelector('.chat-messages');
-            chatMessages.innerHTML = conversation.messages.map(msg => `
-                <div class="message-bubble ${msg.type}">
-                    <p>${msg.content}</p>
-                    <span class="message-time">${msg.time}</span>
-                </div>
-            `).join('');
-
-            // Scroll to bottom of chat
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
+        // Open chat with selected mentor
+        function openChat(mentorId, mentorName, mentorAvatar) {
+            const chatWindow = document.getElementById('chatWindow');
+            
             // Update active state in message list
             document.querySelectorAll('.message-preview').forEach(preview => {
                 preview.classList.remove('active');
-                if (preview.getAttribute('data-user-id') === userId) {
+                if (preview.getAttribute('data-mentor-id') === mentorId) {
                     preview.classList.add('active');
                 }
             });
+
+            chatWindow.innerHTML = `
+                <div class="chat-header">
+                    <img src="${mentorAvatar}" alt="${mentorName}" class="message-avatar"
+                         onerror="this.onerror=null;this.src='${DEFAULT_AVATAR_URL}'">
+                    <div class="message-info">
+                        <h3 class="message-name">${mentorName}</h3>
+                        <span class="message-time">Available</span>
+                    </div>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <div style="text-align: center; padding: 3rem 2rem; color: var(--secondary);">
+                        <i class="fas fa-comments" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <h4>Start Your Conversation</h4>
+                        <p>This is the beginning of your conversation with ${mentorName}. Say hello!</p>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" placeholder="Type your message..." id="messageInput">
+                    <button onclick="sendMessage('${mentorId}')"><i class="fas fa-paper-plane"></i> Send</button>
+                </div>
+            `;
+
+            // Focus on input
+            setTimeout(() => {
+                document.getElementById('messageInput').focus();
+            }, 100);
         }
 
-        // Add click handlers for message previews
-        document.querySelectorAll('.message-preview').forEach(preview => {
-            preview.addEventListener('click', () => {
-                const userId = preview.getAttribute('data-user-id');
-                switchConversation(userId);
-            });
+        // Send message (placeholder for now)
+        function sendMessage(mentorId) {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message) return;
+
+            // For now, just add the message to the chat
+            const chatMessages = document.getElementById('chatMessages');
+            const currentTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            // Clear the placeholder if it exists
+            if (chatMessages.innerHTML.includes('Start Your Conversation')) {
+                chatMessages.innerHTML = '';
+            }
+
+            chatMessages.innerHTML += `
+                <div class="message-bubble sent">
+                    <p>${message}</p>
+                    <span class="message-time">${currentTime}</span>
+                </div>
+            `;
+
+            // Clear input
+            messageInput.value = '';
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // TODO: Implement actual message sending to backend
+            console.log(`Sending message to mentor ${mentorId}: ${message}`);
+        }
+
+        // Handle Enter key in message input
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.target.id === 'messageInput') {
+                e.preventDefault();
+                const mentorId = document.querySelector('.message-preview.active')?.getAttribute('data-mentor-id');
+                if (mentorId) {
+                    sendMessage(mentorId);
+                }
+            }
         });
 
-        // Initialize with first conversation
-        document.addEventListener('DOMContentLoaded', () => {
-            switchConversation('john-smith');
-        });
+        // Make functions globally accessible
+        window.openChat = openChat;
+        window.sendMessage = sendMessage;
+        window.loadMentorsList = loadMentorsList;
+
+        // Load mentors list when page loads
+        document.addEventListener('DOMContentLoaded', loadMentorsList);
     </script>
 </body>
 </html> 

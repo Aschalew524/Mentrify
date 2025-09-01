@@ -554,7 +554,7 @@
     <script type="module">
         import { getActiveMentors } from '../../js/mentorship/mentorship.js';
 
-        const DEFAULT_AVATAR_URL = '../../assets/images/default-avatar.png';
+        const DEFAULT_AVATAR_URL = '../../assets/images/default-avatar.jpg';
 
         // Load connected mentors (active mentorships)
         async function loadConnectedMentors() {
@@ -594,10 +594,10 @@
                     return `
                         <div class="mentor-row">
                             <div class="mentor-avatar-container">
-                                <img src="${mentor.photo_url || DEFAULT_AVATAR_URL}" 
+                                <img src="${mentor.photo_url && mentor.photo_url.trim() !== '' ? mentor.photo_url : DEFAULT_AVATAR_URL}" 
                                      alt="${displayName}" 
                                      class="mentor-avatar"
-                                     onerror="this.src='${DEFAULT_AVATAR_URL}'">
+                                     onerror="this.onerror=null;this.src='${DEFAULT_AVATAR_URL}'">
                                 <div class="mentor-status-badge"></div>
                             </div>
                             <div class="mentor-info">
