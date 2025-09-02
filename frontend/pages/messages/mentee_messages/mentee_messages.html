@@ -188,6 +188,97 @@
             margin: 0;
             opacity: 0.8;
         }
+
+        /* Typing indicator styles */
+        .typing-indicator {
+            padding: 0.5rem 1rem;
+            background: var(--background);
+            border-top: 1px solid var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 0.2rem;
+        }
+
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--primary);
+            animation: typing-pulse 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0s; }
+
+        @keyframes typing-pulse {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Message status styles */
+        .message-status {
+            margin-left: 0.25rem;
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+
+        .message-bubble.sent .message-status {
+            color: var(--primary);
+        }
+
+        /* Online/offline indicator */
+        .mentor-status {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            margin-left: 0.5rem;
+        }
+
+        .mentor-status.offline {
+            background: #6b7280;
+        }
+
+        /* Smooth animations for new messages */
+        .message-bubble {
+            animation: slideInMessage 0.3s ease-out;
+        }
+
+        @keyframes slideInMessage {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Failed message styles */
+        .message-bubble.failed {
+            border-left: 3px solid #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .message-bubble.failed .message-status {
+            color: #ef4444;
+        }
     </style>
 </head>
 <body>
@@ -259,6 +350,13 @@
         import { getActiveMentors } from '../../../js/mentorship/mentorship.js';
 
         const DEFAULT_AVATAR_URL = '../../../assets/images/default-avatar.jpg';
+        
+        // Real-time chat configuration
+        let currentMentorId = null;
+        let messagePollingInterval = null;
+        let lastMessageId = 0;
+        let isTyping = false;
+        let typingTimeout = null;
 
         // Load active mentors to populate message list
         async function loadMentorsList() {
@@ -268,8 +366,8 @@
                     <div style="padding: 2rem; text-align: center; color: var(--secondary);">
                         <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
                         <p>Loading conversations...</p>
-                    </div>
-                `;
+                </div>
+            `;
 
                 const response = await getActiveMentors();
                 const mentors = Array.isArray(response) ? response : (response.data || []);
@@ -319,7 +417,7 @@
                         <button onclick="loadMentorsList()" style="background: var(--primary); color: var(--white); padding: 0.75rem 1.5rem; border: none; border-radius: 8px; cursor: pointer;">
                             <i class="fas fa-redo"></i> Try Again
                         </button>
-                    </div>
+                </div>
                 `;
             }
         }
@@ -328,6 +426,14 @@
         function openChat(mentorId, mentorName, mentorAvatar) {
             const chatWindow = document.getElementById('chatWindow');
             
+            // Stop previous polling if exists
+            if (messagePollingInterval) {
+                clearInterval(messagePollingInterval);
+            }
+            
+            // Set current mentor
+            currentMentorId = mentorId;
+
             // Update active state in message list
             document.querySelectorAll('.message-preview').forEach(preview => {
                 preview.classList.remove('active');
@@ -342,21 +448,36 @@
                          onerror="this.onerror=null;this.src='${DEFAULT_AVATAR_URL}'">
                     <div class="message-info">
                         <h3 class="message-name">${mentorName}</h3>
-                        <span class="message-time">Available</span>
+                        <span class="message-time" id="mentorStatus">Available</span>
                     </div>
                 </div>
                 <div class="chat-messages" id="chatMessages">
-                    <div style="text-align: center; padding: 3rem 2rem; color: var(--secondary);">
-                        <i class="fas fa-comments" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                        <h4>Start Your Conversation</h4>
-                        <p>This is the beginning of your conversation with ${mentorName}. Say hello!</p>
+                    <div style="text-align: center; padding: 2rem; color: var(--secondary);">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <p>Loading conversation...</p>
                     </div>
                 </div>
+                <div id="typingIndicator" class="typing-indicator" style="display: none;">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span class="typing-text">${mentorName} is typing...</span>
+                </div>
                 <div class="chat-input">
-                    <input type="text" placeholder="Type your message..." id="messageInput">
+                    <input type="text" placeholder="Type your message..." id="messageInput" 
+                           oninput="handleTyping('${mentorId}')" 
+                           onkeydown="handleKeyDown(event, '${mentorId}')">
                     <button onclick="sendMessage('${mentorId}')"><i class="fas fa-paper-plane"></i> Send</button>
                 </div>
             `;
+
+            // Load existing messages
+            loadChatMessages(mentorId);
+            
+            // Start real-time polling for new messages
+            startMessagePolling(mentorId);
 
             // Focus on input
             setTimeout(() => {
@@ -364,37 +485,481 @@
             }, 100);
         }
 
-        // Send message (placeholder for now)
-        function sendMessage(mentorId) {
+        // Load chat messages from backend (with localStorage fallback)
+        async function loadChatMessages(mentorId) {
+            try {
+                const token = localStorage.getItem('access_token');
+                if (!token) {
+                    throw new Error('No access token found');
+                }
+
+                let messages = [];
+
+                // Try to load from backend first - find or create conversation
+                try {
+                    // First, get or create conversation with this mentor
+                    const conversationId = await getOrCreateConversation(mentorId);
+                    
+                    if (conversationId) {
+                        const response = await fetch(`http://mentrifyapis.biruk.tech/api/conversations/${conversationId}/messages`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            messages = data.messages || data || [];
+                        }
+                    }
+                } catch (error) {
+                    console.log('Backend endpoint not available, loading from localStorage');
+                }
+
+                // Fallback to localStorage if backend not available
+                if (messages.length === 0) {
+                    messages = loadMessagesFromLocalStorage(mentorId);
+                }
+
+                displayMessages(messages);
+                
+                // Update last message ID for polling
+                if (messages.length > 0) {
+                    lastMessageId = Math.max(...messages.map(msg => msg.id));
+                }
+                
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.innerHTML = `
+                    <div style="text-align: center; padding: 3rem 2rem; color: var(--secondary);">
+                        <i class="fas fa-comments" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <h4>Start Your Conversation</h4>
+                        <p>This is the beginning of your conversation. Say hello!</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Load messages from localStorage
+        function loadMessagesFromLocalStorage(mentorId) {
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            if (!currentUser) return [];
+
+            const storageKey = `chat_messages_${Math.min(currentUser.id, mentorId)}_${Math.max(currentUser.id, mentorId)}`;
+            return JSON.parse(localStorage.getItem(storageKey) || '[]');
+        }
+
+        // Display messages in chat
+        function displayMessages(messages) {
+            const chatMessages = document.getElementById('chatMessages');
+            const currentUserId = JSON.parse(localStorage.getItem('user'))?.id;
+            
+            if (!messages || messages.length === 0) {
+                chatMessages.innerHTML = `
+                    <div style="text-align: center; padding: 3rem 2rem; color: var(--secondary);">
+                        <i class="fas fa-comments" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <h4>Start Your Conversation</h4>
+                        <p>This is the beginning of your conversation. Say hello!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            chatMessages.innerHTML = messages.map(message => {
+                const isSent = message.sender_id === currentUserId;
+                const messageTime = new Date(message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                return `
+                    <div class="message-bubble ${isSent ? 'sent' : 'received'}" data-message-id="${message.id}">
+                        <p>${escapeHTML(message.content)}</p>
+                        <span class="message-time">
+                            ${messageTime}
+                            ${isSent ? '<i class="fas fa-check message-status" title="Sent"></i>' : ''}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Start polling for new messages
+        function startMessagePolling(mentorId) {
+            // Poll every 2 seconds for new messages
+            messagePollingInterval = setInterval(async () => {
+                if (currentMentorId === mentorId) {
+                    await checkForNewMessages(mentorId);
+                }
+            }, 2000);
+        }
+
+        // Get or create conversation with mentor
+        async function getOrCreateConversation(mentorId) {
+            const token = localStorage.getItem('access_token');
+            if (!token) return null;
+
+            try {
+                // First try to get existing conversations
+                const conversationsResponse = await fetch('http://mentrifyapis.biruk.tech/api/conversations', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (conversationsResponse.ok) {
+                    const conversations = await conversationsResponse.json();
+                    const existingConversation = conversations.find(conv => 
+                        conv.participants && conv.participants.some(p => p.id == mentorId)
+                    );
+                    
+                    if (existingConversation) {
+                        return existingConversation.id;
+                    }
+                }
+
+                // If no existing conversation, create a new one
+                const createResponse = await fetch('http://mentrifyapis.biruk.tech/api/conversations', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        participant_ids: [mentorId]
+                    })
+                });
+
+                if (createResponse.ok) {
+                    const newConversation = await createResponse.json();
+                    return newConversation.id;
+                }
+            } catch (error) {
+                console.error('Error getting/creating conversation:', error);
+            }
+            
+            return null;
+        }
+
+        // Check for new messages
+        async function checkForNewMessages(mentorId) {
+            try {
+                const token = localStorage.getItem('access_token');
+                if (!token) return;
+
+                const conversationId = await getOrCreateConversation(mentorId);
+                if (!conversationId) return;
+
+                const response = await fetch(`http://mentrifyapis.biruk.tech/api/conversations/${conversationId}/messages`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) return;
+
+                const data = await response.json();
+                const allMessages = data.messages || data || [];
+                
+                // Filter for new messages (those with ID greater than lastMessageId)
+                const newMessages = allMessages.filter(msg => msg.id > lastMessageId);
+                
+                if (newMessages && newMessages.length > 0) {
+                    const chatMessages = document.getElementById('chatMessages');
+                    const currentUserId = JSON.parse(localStorage.getItem('user'))?.id;
+                    
+                    newMessages.forEach(message => {
+                        const isSent = message.sender_id === currentUserId;
+                        const messageTime = new Date(message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        
+                        const messageElement = document.createElement('div');
+                        messageElement.className = `message-bubble ${isSent ? 'sent' : 'received'}`;
+                        messageElement.setAttribute('data-message-id', message.id);
+                        messageElement.innerHTML = `
+                            <p>${escapeHTML(message.content)}</p>
+                            <span class="message-time">
+                                ${messageTime}
+                                ${isSent ? '<i class="fas fa-check message-status" title="Sent"></i>' : ''}
+                            </span>
+                        `;
+                        
+                        chatMessages.appendChild(messageElement);
+                        
+                        // Update last message ID
+                        lastMessageId = Math.max(lastMessageId, message.id);
+                    });
+                    
+                    // Scroll to bottom
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                    // Show notification for received messages
+                    const receivedMessages = newMessages.filter(msg => msg.sender_id !== currentUserId);
+                    if (receivedMessages.length > 0) {
+                        showNewMessageNotification(receivedMessages.length);
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking for new messages:', error);
+            }
+        }
+
+        // Send message with real-time functionality
+        async function sendMessage(mentorId) {
             const messageInput = document.getElementById('messageInput');
             const message = messageInput.value.trim();
             
             if (!message) return;
 
-            // For now, just add the message to the chat
             const chatMessages = document.getElementById('chatMessages');
-            const currentTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const currentTime = new Date();
+            const timeString = currentTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const messageId = Date.now(); // Temporary ID until we get real ID from backend
             
             // Clear the placeholder if it exists
             if (chatMessages.innerHTML.includes('Start Your Conversation')) {
                 chatMessages.innerHTML = '';
             }
 
-            chatMessages.innerHTML += `
-                <div class="message-bubble sent">
-                    <p>${message}</p>
-                    <span class="message-time">${currentTime}</span>
-                </div>
+            // Add message to chat with sending status
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message-bubble sent';
+            messageElement.setAttribute('data-message-id', messageId);
+            messageElement.innerHTML = `
+                <p>${escapeHTML(message)}</p>
+                <span class="message-time">
+                    ${timeString}
+                    <i class="fas fa-clock message-status" title="Sending..."></i>
+                </span>
             `;
-
-            // Clear input
-            messageInput.value = '';
             
-            // Scroll to bottom
+            chatMessages.appendChild(messageElement);
+            messageInput.value = '';
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            // TODO: Implement actual message sending to backend
-            console.log(`Sending message to mentor ${mentorId}: ${message}`);
+            // Stop typing indicator
+            stopTyping(mentorId);
+
+            try {
+                // Send message to backend
+                const response = await sendMessageToBackend(mentorId, message);
+                
+                // Update message status to sent
+                const statusIcon = messageElement.querySelector('.message-status');
+                statusIcon.className = 'fas fa-check message-status';
+                statusIcon.title = 'Sent';
+                
+                // Update with real message ID from backend
+                messageElement.setAttribute('data-message-id', response.id);
+                
+                console.log('Message sent successfully:', response);
+            } catch (error) {
+                console.error('Error sending message:', error);
+                
+                // Update message status to failed
+                const statusIcon = messageElement.querySelector('.message-status');
+                statusIcon.className = 'fas fa-exclamation-triangle message-status';
+                statusIcon.title = 'Failed to send';
+                statusIcon.style.color = '#ef4444';
+                
+                // Add retry functionality
+                messageElement.addEventListener('click', () => retrySendMessage(messageElement, mentorId, message));
+                messageElement.style.cursor = 'pointer';
+                messageElement.title = 'Click to retry';
+            }
+        }
+
+        // Send message to backend API (fallback to localStorage until endpoints are ready)
+        async function sendMessageToBackend(mentorId, message) {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                throw new Error('No access token found');
+            }
+
+            // Try to send to backend first using conversation API
+            try {
+                const conversationId = await getOrCreateConversation(mentorId);
+                if (!conversationId) {
+                    throw new Error('Could not create or find conversation');
+                }
+
+                const response = await fetch(`http://mentrifyapis.biruk.tech/api/conversations/${conversationId}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        content: message,
+                        type: 'text'
+                    })
+                });
+
+                if (response.ok) {
+                    return await response.json();
+                }
+            } catch (error) {
+                console.log('Backend endpoint not available, using localStorage fallback');
+            }
+
+            // Fallback to localStorage until backend endpoints are implemented
+            return await saveMessageToLocalStorage(mentorId, message);
+        }
+
+        // Fallback message storage using localStorage
+        async function saveMessageToLocalStorage(mentorId, message) {
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            if (!currentUser) {
+                throw new Error('User data not found');
+            }
+
+            const messageId = Date.now();
+            const messageData = {
+                id: messageId,
+                sender_id: currentUser.id,
+                recipient_id: mentorId,
+                content: message,
+                type: 'text',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+
+            // Get existing messages
+            const storageKey = `chat_messages_${Math.min(currentUser.id, mentorId)}_${Math.max(currentUser.id, mentorId)}`;
+            const existingMessages = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            
+            // Add new message
+            existingMessages.push(messageData);
+            
+            // Save back to localStorage
+            localStorage.setItem(storageKey, JSON.stringify(existingMessages));
+            
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            return messageData;
+        }
+
+        // Retry sending failed message
+        async function retrySendMessage(messageElement, mentorId, message) {
+            const statusIcon = messageElement.querySelector('.message-status');
+            statusIcon.className = 'fas fa-clock message-status';
+            statusIcon.title = 'Sending...';
+            statusIcon.style.color = '';
+            messageElement.style.cursor = '';
+            messageElement.title = '';
+
+            try {
+                const response = await sendMessageToBackend(mentorId, message);
+                statusIcon.className = 'fas fa-check message-status';
+                statusIcon.title = 'Sent';
+                messageElement.setAttribute('data-message-id', response.id);
+            } catch (error) {
+                statusIcon.className = 'fas fa-exclamation-triangle message-status';
+                statusIcon.title = 'Failed to send';
+                statusIcon.style.color = '#ef4444';
+                messageElement.style.cursor = 'pointer';
+                messageElement.title = 'Click to retry';
+            }
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHTML(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Handle typing indicators
+        function handleTyping(mentorId) {
+            if (!isTyping) {
+                isTyping = true;
+                sendTypingIndicator(mentorId, true);
+            }
+            
+            // Clear previous timeout
+            if (typingTimeout) {
+                clearTimeout(typingTimeout);
+            }
+            
+            // Set new timeout to stop typing after 2 seconds of inactivity
+            typingTimeout = setTimeout(() => {
+                stopTyping(mentorId);
+            }, 2000);
+        }
+
+        function stopTyping(mentorId) {
+            if (isTyping) {
+                isTyping = false;
+                sendTypingIndicator(mentorId, false);
+            }
+            if (typingTimeout) {
+                clearTimeout(typingTimeout);
+                typingTimeout = null;
+            }
+        }
+
+        // Send typing indicator to backend
+        async function sendTypingIndicator(mentorId, typing) {
+            try {
+                const token = localStorage.getItem('access_token');
+                if (!token) return;
+
+                await fetch('http://mentrifyapis.biruk.tech/api/chat/typing', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        recipient_id: mentorId,
+                        typing: typing
+                    })
+                });
+            } catch (error) {
+                console.error('Error sending typing indicator:', error);
+            }
+        }
+
+        // Handle key down events
+        function handleKeyDown(event, mentorId) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage(mentorId);
+            }
+        }
+
+        // Show notification for new messages
+        function showNewMessageNotification(count) {
+            // Update page title
+            const originalTitle = document.title;
+            document.title = `(${count}) New Messages - Mentrify`;
+            
+            // Reset title when user focuses back
+            window.addEventListener('focus', () => {
+                document.title = originalTitle;
+            }, { once: true });
+
+            // Show browser notification if permission granted
+            if (Notification.permission === 'granted') {
+                new Notification(`${count} new message${count > 1 ? 's' : ''}`, {
+                    body: 'You have received new messages from your mentor',
+                    icon: '/assets/images/default-avatar.jpg'
+                });
+            }
+        }
+
+        // Request notification permission
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
         }
 
         // Handle Enter key in message input
@@ -413,8 +978,21 @@
         window.sendMessage = sendMessage;
         window.loadMentorsList = loadMentorsList;
 
+        // Clean up polling when page unloads
+        window.addEventListener('beforeunload', () => {
+            if (messagePollingInterval) {
+                clearInterval(messagePollingInterval);
+            }
+            if (currentMentorId && isTyping) {
+                stopTyping(currentMentorId);
+            }
+        });
+
         // Load mentors list when page loads
-        document.addEventListener('DOMContentLoaded', loadMentorsList);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMentorsList();
+            requestNotificationPermission();
+        });
     </script>
 </body>
 </html> 
