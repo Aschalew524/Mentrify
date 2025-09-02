@@ -358,6 +358,60 @@
         let isTyping = false;
         let typingTimeout = null;
 
+        // Get last message from conversation
+        async function getLastMessage(mentorId) {
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            if (!currentUser) return null;
+
+            let lastMessage = null;
+
+            // First try to get from backend
+            try {
+                const token = localStorage.getItem('access_token');
+                if (token) {
+                    const conversationId = await getOrCreateConversation(mentorId);
+                    if (conversationId) {
+                        const response = await fetch(`http://mentrifyapis.biruk.tech/api/conversations/${conversationId}/messages`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            const messages = data.messages || data || [];
+                            if (messages.length > 0) {
+                                const msg = messages[messages.length - 1];
+                                lastMessage = {
+                                    content: msg.content,
+                                    time: new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                                };
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Backend not available, checking localStorage');
+            }
+
+            // Fallback to localStorage if backend didn't work
+            if (!lastMessage) {
+                const storageKey = `chat_messages_${Math.min(currentUser.id, mentorId)}_${Math.max(currentUser.id, mentorId)}`;
+                const messages = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                
+                if (messages.length > 0) {
+                    const msg = messages[messages.length - 1];
+                    lastMessage = {
+                        content: msg.content,
+                        time: new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                    };
+                }
+            }
+            
+            return lastMessage;
+        }
+
         // Load active mentors to populate message list
         async function loadMentorsList() {
             try {
@@ -386,10 +440,20 @@
                     return;
                 }
 
-                messagesList.innerHTML = mentors.map(mentorship => {
+                // Process mentors and get their last messages
+                const mentorPreviews = await Promise.all(mentors.map(async mentorship => {
                     const mentor = mentorship.mentor;
                     const displayName = `${mentor.first_name || ''} ${mentor.last_name || ''}`.trim() || `Mentor #${mentor.id}`;
                     const avatarUrl = mentor.photo_url && mentor.photo_url.trim() !== '' ? mentor.photo_url : DEFAULT_AVATAR_URL;
+                    
+                    // Get last message from conversation
+                    const lastMessage = await getLastMessage(mentor.id);
+                    const messageContent = lastMessage 
+                        ? lastMessage.content 
+                        : `Click to start a conversation with ${displayName}`;
+                    const timeDisplay = lastMessage 
+                        ? lastMessage.time 
+                        : 'Available';
                     
                     return `
                         <div class="message-preview" data-mentor-id="${mentor.id}" onclick="openChat('${mentor.id}', '${displayName}', '${avatarUrl}')">
@@ -398,13 +462,15 @@
                                      onerror="this.onerror=null;this.src='${DEFAULT_AVATAR_URL}'">
                                 <div class="message-info">
                                     <h3 class="message-name">${displayName}</h3>
-                                    <span class="message-time">Available</span>
+                                    <span class="message-time">${timeDisplay}</span>
                                 </div>
                             </div>
-                            <p class="message-content">Click to start a conversation with ${displayName}</p>
+                            <p class="message-content">${messageContent}</p>
                         </div>
                     `;
-                }).join('');
+                }));
+
+                messagesList.innerHTML = mentorPreviews.join('');
 
             } catch (error) {
                 console.error('Error loading mentors list:', error);
