@@ -9,12 +9,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const password = document.getElementById("password").value.trim();
 
     try {
+      // Step 1: Get CSRF cookie first (required for Sanctum)
+      await fetch("http://mentrifyapis.biruk.tech/sanctum/csrf-cookie", {
+        method: "GET",
+        credentials: "include", // Important: include cookies
+      });
+
+      // Read XSRF-TOKEN cookie value (Laravel stores it base64 encoded)
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+      }
+
+      const xsrfToken = getCookie('XSRF-TOKEN');
+      const xsrfHeader = xsrfToken ? decodeURIComponent(xsrfToken) : null;
+
+      // Step 2: Make login request with credentials and X-XSRF-TOKEN header
       const response = await fetch("http://mentrifyapis.biruk.tech/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          ...(xsrfHeader ? { 'X-XSRF-TOKEN': xsrfHeader } : {}),
         },
+        credentials: "include", // Important: include cookies for CSRF
         body: JSON.stringify({ email, password }),
       });
 
