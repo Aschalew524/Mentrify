@@ -370,8 +370,8 @@ async function loadSessions() {
         
         const isMentorPage = window.location.pathname.includes('mentor_sessions');
         let endpoint = isMentorPage 
-            ? 'http://mentrifyapis.biruk.tech/api/mentor/sessions'
-            : 'http://mentrifyapis.biruk.tech/api/mentee/sessions'; // Corrected variable name 'url' to 'endpoint'
+            ? 'https://mentrifyapis.biruk.tech/api/mentor/sessions'
+            : 'https://mentrifyapis.biruk.tech/api/mentee/sessions'; // Corrected variable name 'url' to 'endpoint'
         
         const params = new URLSearchParams();
         
@@ -654,7 +654,7 @@ async function fetchActiveMentees() {
         // This error should ideally be caught by the caller (openModal)
         throw new Error('Authentication required to fetch mentees. Please log in.');
         }
-        const response = await fetch('http://mentrifyapis.biruk.tech/api/mentorships/mentor/active', {
+        const response = await fetch('https://mentrifyapis.biruk.tech/api/mentorships/mentor/active', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -755,7 +755,7 @@ async function handleSessionCreation(e) {
     }
 
     try {
-        const response = await fetch(`http://mentrifyapis.biruk.tech/api/mentorships/${mentorshipId}/sessions`, {
+        const response = await fetch(`https://mentrifyapis.biruk.tech/api/mentorships/${mentorshipId}/sessions`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -1074,7 +1074,7 @@ async function fetchSessionNotes(sessionId) {
         throw new Error('Authentication required. Please log in.');
     }
 
-    const response = await fetch(`http://mentrifyapis.biruk.tech/api/sessions/${sessionId}`, {
+    const response = await fetch(`https://mentrifyapis.biruk.tech/api/sessions/${sessionId}`, {
         headers: {
             'Accept': 'application/json',
             'Authorization': `Bearer ${token}`
@@ -1108,7 +1108,7 @@ async function saveSessionNotes(sessionId, notes, isMentorPage) {
     console.log('Saving notes for session', sessionId, ':', notesData);
 
     try {
-        const response = await fetch(`http://mentrifyapis.biruk.tech/api/sessions/${sessionId}/notes`, {
+        const response = await fetch(`https://mentrifyapis.biruk.tech/api/sessions/${sessionId}/notes`, {
             method: 'PATCH',
             headers: {
                 'Accept': 'application/json',

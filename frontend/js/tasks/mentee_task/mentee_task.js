@@ -48,7 +48,7 @@ async function fetchTasks() {
 
         console.log('Fetching tasks from API...');
         
-        const response = await fetch('http://mentrifyapis.biruk.tech/api/mentee/tasks', {
+        const response = await fetch('https://mentrifyapis.biruk.tech/api/mentee/tasks', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -265,7 +265,7 @@ async function updateTaskStatus(taskId, newStatus) {
             throw new Error('No authentication token found');
         }
 
-        const response = await fetch(`http://mentrifyapis.biruk.tech/api/tasks/${taskId}/status`, {
+        const response = await fetch(`https://mentrifyapis.biruk.tech/api/tasks/${taskId}/status`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

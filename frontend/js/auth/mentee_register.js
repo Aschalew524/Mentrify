@@ -31,7 +31,7 @@ document.querySelector('.mentee-register-form').addEventListener('submit', async
   };
 
   try {
-    const res = await fetch('http://mentrifyapis.biruk.tech/api/register', {
+    const res = await fetch('https://mentrifyapis.biruk.tech/api/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

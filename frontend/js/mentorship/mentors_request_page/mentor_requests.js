@@ -259,7 +259,7 @@ document.head.appendChild(style);
 
 async function fetchUserProfile(userId) {
     const token = localStorage.getItem('access_token');
-    const response = await fetch(`http://mentrifyapis.biruk.tech/api/mentee/details/${userId}`, {
+    const response = await fetch(`https://mentrifyapis.biruk.tech/api/mentee/details/${userId}`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
