@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       // 1) Fetch CSRF cookie
-      await fetch("http://mentrifyapis.biruk.tech/sanctum/csrf-cookie", {
+      await fetch("https://mentrifyapis.biruk.tech/sanctum/csrf-cookie", {
         method: "GET",
         credentials: "include",
       });
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const xsrfDecoded = xsrf ? decodeURIComponent(xsrf) : null;
 
       // 2) Make login request with credentials and X-XSRF-TOKEN header
-      const response = await fetch("http://mentrifyapis.biruk.tech/api/login", {
+      const response = await fetch("https://mentrifyapis.biruk.tech/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
