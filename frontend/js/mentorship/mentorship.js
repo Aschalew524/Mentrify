@@ -1,4 +1,4 @@
-const BASE_URL = 'http://mentrifyapis.biruk.tech';
+const BASE_URL = 'https://mentrifyapis.biruk.tech';
 
 // Send mentorship request
 export async function requestMentorship(mentorId) {
@@ -8,7 +8,7 @@ export async function requestMentorship(mentorId) {
     }
 
     console.log('Sending mentorship request to mentor:', mentorId);
-    const response = await fetch(`http://mentrifyapis.biruk.tech/api/mentorships/request/${mentorId}`, {
+    const response = await fetch(`https://mentrifyapis.biruk.tech/api/mentorships/request/${mentorId}`, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -79,7 +79,7 @@ export async function rejectMentorship(mentorshipId) {
         throw new Error('No authentication token found');
     }
     
-    const response = await fetch(`http://mentrifyapis.biruk.tech/api/mentorships/${mentorshipId}/reject`, {
+    const response = await fetch(`https://mentrifyapis.biruk.tech/api/mentorships/${mentorshipId}/reject`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -123,7 +123,7 @@ export async function getPendingMenteeRequests() {
     }
 
     console.log('Fetching pending mentee requests...');
-    const response = await fetch('http://mentrifyapis.biruk.tech/api/mentorships/mentor/pending', {
+    const response = await fetch('https://mentrifyapis.biruk.tech/api/mentorships/mentor/pending', {
         method: 'GET',
         headers: {
             'Accept': 'application/json',
@@ -180,7 +180,7 @@ export async function getActiveMentees() {
 
 async function fetchUserProfile(userId) {
     const token = localStorage.getItem('access_token');
-    const response = await fetch(`http://mentrifyapis.biruk.tech/api/users/${userId}`, {
+    const response = await fetch(`https://mentrifyapis.biruk.tech/api/users/${userId}`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }

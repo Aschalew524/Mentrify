@@ -124,7 +124,7 @@ async function updateProfile(formData) {
             throw new Error('No authentication token or user data found');
         }
 
-        const response = await fetch('http://mentrifyapis.biruk.tech/api/users/me', {
+        const response = await fetch('https://mentrifyapis.biruk.tech/api/users/me', {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',

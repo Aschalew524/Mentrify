@@ -16,7 +16,7 @@ async function fetchMentorTasks() {
             throw new Error('No access token found. Please log in.');
         }
 
-        const response = await fetch('http://mentrifyapis.biruk.tech/api/mentor/tasks', {
+        const response = await fetch('https://mentrifyapis.biruk.tech/api/mentor/tasks', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -360,7 +360,7 @@ async function editTask(taskId) {
         showToast('Loading task details...', 'info');
 
         // Fetch task details from API
-        const response = await fetch(`http://mentrifyapis.biruk.tech/api/tasks/${taskId}`, {
+        const response = await fetch(`https://mentrifyapis.biruk.tech/api/tasks/${taskId}`, {
             headers: {
                 'Accept': 'application/json',
                 'Authorization': `Bearer ${token}`
@@ -439,7 +439,7 @@ async function updateTask(taskId, taskData) {
 
         console.log('Updating task with data:', requestBody);
 
-        const response = await fetch(`http://mentrifyapis.biruk.tech/api/tasks/${taskId}`, {
+        const response = await fetch(`https://mentrifyapis.biruk.tech/api/tasks/${taskId}`, {
             method: 'PUT',
             headers: {
                 'Accept': 'application/json',
@@ -505,7 +505,7 @@ async function createTask({ mentorship_id, title, description, due_date }) {
             due_date: isoDueDate
         };
 
-        const response = await fetch(`http://mentrifyapis.biruk.tech/api/mentorships/${mentorship_id}/tasks`, {
+        const response = await fetch(`https://mentrifyapis.biruk.tech/api/mentorships/${mentorship_id}/tasks`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -672,7 +672,7 @@ async function fetchActiveMentees() {
         if (!token) {
             throw new Error('No access token found. Please log in.');
         }
-        const response = await fetch('http://mentrifyapis.biruk.tech/api/mentorships/mentor/active', {
+        const response = await fetch('https://mentrifyapis.biruk.tech/api/mentorships/mentor/active', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -778,7 +778,7 @@ async function deleteTask(taskId) {
         // Show loading state
         showToast('Deleting task...', 'info');
 
-        const response = await fetch(`http://mentrifyapis.biruk.tech/api/tasks/${taskId}`, {
+        const response = await fetch(`https://mentrifyapis.biruk.tech/api/tasks/${taskId}`, {
             method: 'DELETE',
             headers: {
                 'Accept': 'application/json',
